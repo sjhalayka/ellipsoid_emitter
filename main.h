@@ -63,7 +63,6 @@ size_t n = 100000;
 const double receiver_pos = 10;// 10 kiloparsecs
 const double receiver_radius = 1.0;// receiver_pos / 10.0;
 
-const double emitter_radius = receiver_radius;
     
 
 

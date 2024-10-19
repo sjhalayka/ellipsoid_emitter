@@ -59,7 +59,7 @@ custom_math::vector_3 custom_math::vector_3::operator+(const vector_3 &rhs)
 	return vector_3(x + rhs.x, y + rhs.y, z + rhs.z);
 }
 
-custom_math::vector_3 custom_math::vector_3::operator-(const vector_3 &rhs)
+custom_math::vector_3 custom_math::vector_3::operator-(const vector_3 &rhs) const
 {
 	return vector_3(x - rhs.x, y - rhs.y, z - rhs.z);
 }

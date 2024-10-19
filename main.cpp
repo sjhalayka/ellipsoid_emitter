@@ -56,7 +56,7 @@ int main(int argc, char** argv)
 	cout << setprecision(20) << endl;
 	srand(0);
 
-	double dimension = 2.1;
+	double dimension = 2.5;
 
 	if (dimension < 2)
 		dimension = 2;
@@ -109,7 +109,7 @@ int main(int argc, char** argv)
 
 		line_segment_3 ls;
 		ls.start = threeD_oscillators[i];
-		ls.end = threeD_oscillators[i] + normals[i];
+		ls.end = threeD_oscillators[i] + normals[i] * 1e30;
 
 		threeD_line_segments.push_back(ls);
 	}
@@ -131,7 +131,9 @@ int main(int argc, char** argv)
 			{
 				line_segment_3 ls_;
 				ls_.start = threeD_line_segments[i].start;
-				ls_.end = threeD_line_segments[i].start + threeD_line_segments[i].end * mu1;
+				ls_.end = threeD_line_segments[i].start + threeD_line_segments[i].end * mu2;
+
+				cout << (sphere_location - ls_.end).length() << endl;
 
 				threeD_line_segments_intersected.push_back(ls_);
 			}

@@ -69,7 +69,7 @@ public:
 	void rotate_y(const double &radians);
     void rotate_z(const double &radians);
     vector_3 operator+(const vector_3 &rhs);
-	vector_3 operator-(const vector_3 &rhs);
+	vector_3 operator-(const vector_3 &rhs) const;
 	vector_3 operator*(const vector_3 &rhs);
 	vector_3 operator/(const vector_3& rhs);
 
