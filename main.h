@@ -58,7 +58,7 @@ void draw_objects(void);
 
 
 
-size_t n = 1000;
+size_t n = 100000;
 
 const double receiver_pos = 10;// 10 kiloparsecs
 const double receiver_radius = 1.0;// receiver_pos / 10.0;
@@ -71,7 +71,7 @@ const double G = 6.67430e-11;
 
 
 vector<vector_3> threeD_oscillators;
-
+vector<vector_3> normals;
 
 const double pi = 4.0f * atanf(1.0f);
 const double c_meters = 299792458;
@@ -169,10 +169,10 @@ vector_4 RayEllipsoid(vector_3 ro, vector_3 rd, vector_3 r)
 
 vector_3 EllipsoidNormal(vector_3 pos, vector_3 ra)
 {
-    vector_3 n = (pos / (ra * ra)) * 2.0;
-    //	n.normalize();
-
-    return n;
+    vector_3 normal = (pos / (ra * ra));
+    normal.normalize();
+    
+    return -normal;
 }
 
 

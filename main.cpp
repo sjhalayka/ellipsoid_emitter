@@ -13,97 +13,9 @@ void get_line_segments(const vector_3 sphere_location,
 
 
 
-	if (1)//true == redo_line_segments)
-	{
-		threeD_line_segments.clear();
-
-		for (size_t i = 0; i < n; i++)
-		{
-			line_segment_3 ls;
-			ls.start = threeD_oscillators[i];
-
-			for (size_t j = 0; j < n; j++)
-			{
-				if (i == j)
-					continue;
-
-				ls.end = threeD_oscillators[j];
-
-				line_segment_3 ls_;
-
-				ls_.start = vector_3(0, 0, 0);// ls.start;
-				ls_.end = ls.start + (ls.start - ls.end).normalize();// *1e30;// end;// +(ls.end - ls.start).normalize() * 10.0f;
-
-				threeD_line_segments.push_back(ls_);
-			}
-		}
-	}
-
-	threeD_line_segments_intersected.clear();
-
-	for (size_t i = 0; i < threeD_line_segments.size(); i++)
-	{
-		const vector_3 dir = (threeD_line_segments[i].end - threeD_line_segments[i].start).normalize();
-
-		if (dir.dot(sphere_location) > 0)
-		{
-			double mu1 = 0, mu2 = 0;
-
-			if (RaySphere(threeD_line_segments[i].start, threeD_line_segments[i].end, sphere_location, sphere_radius, &mu1, &mu2))
-			{
-				line_segment_3 ls_;
-				ls_.start = threeD_line_segments[i].start;
-				ls_.end = threeD_line_segments[i].start + threeD_line_segments[i].end * mu1;
-
-				threeD_line_segments_intersected.push_back(ls_);
-			}
-		}
-	}
-
-	//	cout << static_cast<float>(threeD_line_segments_intersected.size()) / static_cast<float>(threeD_line_segments.size()) << ", " << endl;
-
-	vector<vector_3> vectors;
-
-	for (size_t i = 0; i < threeD_line_segments_intersected.size(); i++)
-	{
-		vector_3 v = (threeD_line_segments_intersected[i].end - threeD_line_segments_intersected[i].start);
-		v.normalize();
-		vectors.push_back(v);
-	}
-
-	double parallelity = 0;
-	size_t count = 0;
-
-	for (size_t i = 0; i < vectors.size() - 1; i++)
-	{
-		for (size_t j = (i + 1); j < vectors.size(); j++)
-		{
-			const double d = vectors[i].dot(vectors[j]);
-
-			parallelity += d;
-			count++;
-		}
-	}
-
-	cout << count << " " << vectors.size() * (vectors.size() - 1) / 2.0 << endl;
-
-	parallelity /= count;
-
-	parallelity = abs(parallelity);
 
 
 
-	double avg_strength = pow(c_meters, disk_like);
-
-	double a = 1.0 / pow(sphere_location.x, 2.0);
-	// static_cast<double>(threeD_line_segments_intersected.size()) / static_cast<double>(threeD_line_segments.size()) 
-	//
-	double g = (1.0 - parallelity);// / pow(sphere_location.x, 2.0);
-
-	//cout << g << endl;
-	//cout << a << endl;
-	//cout << g / a << endl;
-	//cout << endl;
 }
 
 
@@ -113,8 +25,8 @@ void get_line_segments(const vector_3 sphere_location,
 
 vector_3 RandomUnitVector(void)
 {
-	double z = static_cast<double>((rand() % 256) + 1) / 256.0f * 2.0f - 1.0f;
-	double a = static_cast<double>((rand() % 256) + 1) / 256.0f * 2 * pi;
+	double z = static_cast<double>(rand() % RAND_MAX) / static_cast<double>(RAND_MAX) * 2 - 1;
+	double a = static_cast<double>(rand() % RAND_MAX) / static_cast<double>(RAND_MAX) * 2 * pi;
 	double r = sqrt(1.0f - z * z);
 	double x = r * cos(a);
 	double y = r * sin(a);
@@ -144,7 +56,7 @@ int main(int argc, char** argv)
 	cout << setprecision(20) << endl;
 	srand(0);
 
-	double dimension = 2.01;
+	double dimension = 2.1;
 
 	if (dimension < 2)
 		dimension = 2;
@@ -174,9 +86,6 @@ int main(int argc, char** argv)
 		threeD_oscillators[i] = s;
 	}
 
-
-
-
 	for (size_t i = 0; i < n; i++)
 	{
 		vector_3 vec = threeD_oscillators[i];
@@ -186,16 +95,51 @@ int main(int argc, char** argv)
 		threeD_oscillators[i] = vector_3(rv.y, rv.z, rv.w);
 	}
 
+	for (size_t i = 0; i < n; i++)
+	{
+		vector_3 vec = threeD_oscillators[i];
+
+		const vector_4 rv = RayEllipsoid(vector_3(0, 0, 0), vec, vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
+
+		vector_3 collision_point = vector_3(rv.y, rv.z, rv.w);
+
+		vector_3 normal = EllipsoidNormal(collision_point, vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
+
+		normals.push_back(normal);
+
+		line_segment_3 ls;
+		ls.start = threeD_oscillators[i];
+		ls.end = threeD_oscillators[i] + normals[i];
+
+		threeD_line_segments.push_back(ls);
+	}
+
+
+	threeD_line_segments_intersected.clear();
+
+	for (size_t i = 0; i < threeD_line_segments.size(); i++)
+	{
+		const vector_3 sphere_location(receiver_pos, 0, 0);
+
+		const vector_3 dir = (threeD_line_segments[i].end - threeD_line_segments[i].start).normalize();
+
+		if (dir.dot(sphere_location) > 0)
+		{
+			double mu1 = 0, mu2 = 0;
+
+			if (RaySphere(threeD_line_segments[i].start, threeD_line_segments[i].end, sphere_location, receiver_radius, &mu1, &mu2))
+			{
+				line_segment_3 ls_;
+				ls_.start = threeD_line_segments[i].start;
+				ls_.end = threeD_line_segments[i].start + threeD_line_segments[i].end * mu1;
+
+				threeD_line_segments_intersected.push_back(ls_);
+			}
+		}
+	}
 
 
 
-
-
-
- //	get_line_segments(vector_3(receiver_pos, 0, 0), receiver_radius, dimension);
-
-	//for(double dist = receiver_pos; dist <= receiver_pos*1000.0; dist += receiver_pos)
-	//	get_line_segments(vector_3(dist, 0, 0), receiver_radius, dimension);
 
 
 	glutInit(&argc, argv);
@@ -290,20 +234,46 @@ void draw_objects(void)
 	glLineWidth(1.0f);
 
 
-	glBegin(GL_POINTS);
+	//glBegin(GL_POINTS);
 
-	glColor3f(1, 1, 1);
+	//glColor3f(1, 1, 1);
 
-	for (size_t i = 0; i < threeD_oscillators.size(); i++)
-		glVertex3d(threeD_oscillators[i].x, threeD_oscillators[i].y, threeD_oscillators[i].z);
+	//for (size_t i = 0; i < threeD_oscillators.size(); i++)
+	//	glVertex3d(threeD_oscillators[i].x, threeD_oscillators[i].y, threeD_oscillators[i].z);
 
-	glEnd();
+	//glEnd();
 
 
 
-	//glEnable(GL_ALPHA);
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glEnable(GL_ALPHA);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
+	//glBegin(GL_LINES);
+
+	//glColor4f(0, 1, 0, 0.1f);
+
+	//for (size_t i = 0; i < threeD_oscillators.size(); i++)
+	//{
+	//	//if (threeD_line_segments[i].start.z > 0 || threeD_line_segments[i].end.z > 0)
+	//	//	continue;
+
+	//	if (threeD_oscillators[i].z > 0)
+	//		continue;
+
+
+	//	glVertex3d(threeD_oscillators[i].x, threeD_oscillators[i].y, threeD_oscillators[i].z);
+	//	glVertex3d(threeD_oscillators[i].x + normals[i].x, threeD_oscillators[i].y + normals[i].y, threeD_oscillators[i].z + normals[i].z);
+	//}
+
+	//glEnd();
+
+
+
+
+
 
 
 	//glBegin(GL_LINES);
@@ -326,24 +296,24 @@ void draw_objects(void)
 
 
 
-	//glBegin(GL_LINES);
+	glBegin(GL_LINES);
 
-	//glColor4f(0, 0, 1, 0.1f);
+	glColor4f(0, 0, 1, 0.1f);
 
-	//for (size_t i = 0; i < threeD_line_segments_intersected.size(); i++)
-	//{
-	//	glVertex3d(threeD_line_segments_intersected[i].start.x, threeD_line_segments_intersected[i].start.y, threeD_line_segments_intersected[i].start.z);
-	//	glVertex3d(threeD_line_segments_intersected[i].end.x, threeD_line_segments_intersected[i].end.y, threeD_line_segments_intersected[i].end.z);
-	//}
+	for (size_t i = 0; i < threeD_line_segments_intersected.size(); i++)
+	{
+		glVertex3d(threeD_line_segments_intersected[i].start.x, threeD_line_segments_intersected[i].start.y, threeD_line_segments_intersected[i].start.z);
+		glVertex3d(threeD_line_segments_intersected[i].end.x, threeD_line_segments_intersected[i].end.y, threeD_line_segments_intersected[i].end.z);
+	}
 
-	//glEnd();
-
-
+	glEnd();
 
 
 
 
-	//glDisable(GL_BLEND);
+
+
+	glDisable(GL_BLEND);
 
 
 
