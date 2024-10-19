@@ -144,7 +144,7 @@ int main(int argc, char** argv)
 	cout << setprecision(20) << endl;
 	srand(0);
 
-	double dimension = 3;
+	double dimension = 2.01;
 
 	if (dimension < 2)
 		dimension = 2;
@@ -156,7 +156,7 @@ int main(int argc, char** argv)
 	for (size_t i = 0; i < n; i++)
 	{
 		vector_3 rand_vector = RandomUnitVector();
-		threeD_oscillators.push_back(rand_vector);// vector_3(rv.y, rv.z, rv.w));
+		threeD_oscillators.push_back(rand_vector);
 	}
 
 	for (size_t i = 0; i < threeD_oscillators.size(); i++)
@@ -186,55 +186,6 @@ int main(int argc, char** argv)
 		threeD_oscillators[i] = vector_3(rv.y, rv.z, rv.w);
 	}
 
-
-
-
-	//for (int g = 0; g < 100; g++)
-	//{
-	//	for (size_t i = 0; i < n; i++)
-	//	{
-	//		for (size_t j = 0; j < n; j++)
-	//		{
-	//			if (i == j)
-	//				continue;
-
-	//			vector_3 accel(0, 0, 0);
-
-	//			vector_3 grav_dir = threeD_oscillators[i] - threeD_oscillators[j];
-	//			const float d = static_cast<float>(grav_dir.length());
-
-	//			accel = grav_dir / (d * d);
-
-	//			threeD_oscillators[i] += accel * 0.0001f;
-	//		}
-
-	//		threeD_oscillators[i].normalize();
-	//		threeD_oscillators[i] *= emitter_radius;
-	//	}
-	//}
-
-
-
-	//// move along arc to disk formation
-	//for (size_t i = 0; i < threeD_oscillators.size(); i++)
-	//{
-	//	//const double r = threeD_oscillators[i].length();
-
-	//	vector_3 ring;
-
-	//	ring.x = 1;// threeD_oscillators[i].x;
-	//	ring.y = 0;
-	//	ring.z = 1;// threeD_oscillators[i].z;
-
-	//	//ring.normalize();
-	//	//ring *= r;
-
-	//	const double disk_like = 3 - dimension; // where dimension is between 3.0 and 2.0
-
-	//	vector_3 s = slerp(threeD_oscillators[i], ring, disk_like);
-
-	//	threeD_oscillators[i] = s;
-	//}
 
 
 
