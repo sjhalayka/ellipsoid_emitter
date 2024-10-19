@@ -236,14 +236,14 @@ void draw_objects(void)
 	glLineWidth(1.0f);
 
 
-	//glBegin(GL_POINTS);
+	glBegin(GL_POINTS);
 
-	//glColor3f(1, 1, 1);
+	glColor3f(1, 1, 1);
 
-	//for (size_t i = 0; i < threeD_oscillators.size(); i++)
-	//	glVertex3d(threeD_oscillators[i].x, threeD_oscillators[i].y, threeD_oscillators[i].z);
+	for (size_t i = 0; i < threeD_oscillators.size(); i++)
+		glVertex3d(threeD_oscillators[i].x, threeD_oscillators[i].y, threeD_oscillators[i].z);
 
-	//glEnd();
+	glEnd();
 
 
 
