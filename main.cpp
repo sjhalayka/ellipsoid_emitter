@@ -3,21 +3,6 @@
 
 
 
-void get_line_segments(const vector_3 sphere_location,
-	const double sphere_radius,
-	const double dimension)
-{
-	srand(0);
-
-	const double disk_like = 3 - dimension;
-
-
-
-
-
-
-}
-
 
 
 
@@ -115,30 +100,8 @@ int main(int argc, char** argv)
 	}
 
 
-	threeD_line_segments_intersected.clear();
-
-	// Receiver location
-	const vector_3 sphere_location(receiver_pos, 0, 0);
-
-	for (size_t i = 0; i < threeD_line_segments.size(); i++)
-	{
-		const vector_3 dir = (threeD_line_segments[i].end - threeD_line_segments[i].start).normalize();
-
-		if (dir.dot(sphere_location) > 0)
-		{
-			double mu1 = 0, mu2 = 0;
-
-			if (RaySphere(threeD_line_segments[i].start, threeD_line_segments[i].end, sphere_location, receiver_radius, &mu1, &mu2))
-			{
-				line_segment_3 ls_;
-				ls_.start = threeD_line_segments[i].start;
-				ls_.end = threeD_line_segments[i].start + threeD_line_segments[i].end * mu2;
-
-				threeD_line_segments_intersected.push_back(ls_);
-			}
-		}
-	}
-
+	vector_3 reciever_pos(10, 0, 0);
+	get_intersecting_line_segments(reciever_pos, 1.0, dimension);
 
 
 
@@ -230,7 +193,7 @@ void draw_objects(void)
 
 	glPushMatrix();
 
-	glScaled(1.0 / receiver_radius, 1.0 / receiver_radius, 1.0 / receiver_radius);
+	//glScaled(1.0 / receiver_radius, 1.0 / receiver_radius, 1.0 / receiver_radius);
 	glPointSize(1.0);
 	glLineWidth(1.0f);
 

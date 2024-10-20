@@ -58,10 +58,8 @@ void draw_objects(void);
 
 
 
-size_t n = 100000;
+size_t n = 10000000;
 
-const double receiver_pos = 10;// 10 kiloparsecs
-const double receiver_radius = 1.0;// receiver_pos / 10.0;
 
     
 
@@ -176,6 +174,32 @@ vector_3 EllipsoidNormal(vector_3 pos, vector_3 ra)
 
 
 
+
+void get_intersecting_line_segments(const vector_3 sphere_location,
+    const double sphere_radius,
+    const double dimension)
+{
+    threeD_line_segments_intersected.clear();
+
+    for (size_t i = 0; i < threeD_line_segments.size(); i++)
+    {
+        const vector_3 dir = (threeD_line_segments[i].end - threeD_line_segments[i].start).normalize();
+
+        if (dir.dot(sphere_location) > 0)
+        {
+            double mu1 = 0, mu2 = 0;
+
+            if (RaySphere(threeD_line_segments[i].start, threeD_line_segments[i].end, sphere_location, 1.0, &mu1, &mu2))
+            {
+                line_segment_3 ls_;
+                ls_.start = threeD_line_segments[i].start;
+                ls_.end = threeD_line_segments[i].start + threeD_line_segments[i].end * mu2;
+
+                threeD_line_segments_intersected.push_back(ls_);
+            }
+        }
+    }
+}
 
 
 
