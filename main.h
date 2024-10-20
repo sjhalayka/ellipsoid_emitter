@@ -173,32 +173,34 @@ vector_3 EllipsoidNormal(vector_3 pos, vector_3 ra)
 
 
 
-size_t get_intersecting_line_segments(const vector_3 sphere_location,
+size_t get_intersecting_line_count(const vector_3 sphere_location,
     const double sphere_radius,
-    const double dimension)
+    const double dimension,
+    const bool skip_saving_intersected_segments)
 {
     threeD_line_segments_intersected.clear();
+    size_t count = 0;
 
-    for (size_t i = 0; i < threeD_line_segments.size(); i++)
-    {
-        const vector_3 dir = (threeD_line_segments[i].end - threeD_line_segments[i].start).normalize();
+	for (size_t i = 0; i < threeD_line_segments.size(); i++)
+	{
+		double mu1 = 0, mu2 = 0;
 
-        if (dir.dot(sphere_location) > 0)
-        {
-            double mu1 = 0, mu2 = 0;
+		if (RaySphere(threeD_line_segments[i].start, threeD_line_segments[i].end, sphere_location, 1.0, &mu1, &mu2))
+		{
+			count++;
 
-            if (RaySphere(threeD_line_segments[i].start, threeD_line_segments[i].end, sphere_location, 1.0, &mu1, &mu2))
-            {
-                line_segment_3 ls_;
-                ls_.start = threeD_line_segments[i].start;
-                ls_.end = threeD_line_segments[i].start + threeD_line_segments[i].end * mu2;
+			if (skip_saving_intersected_segments)
+				continue;
 
-                threeD_line_segments_intersected.push_back(ls_);
-            }
-        }
-    }
+			line_segment_3 ls_;
+			ls_.start = threeD_line_segments[i].start;
+			ls_.end = threeD_line_segments[i].start + threeD_line_segments[i].end * mu2;
+
+			threeD_line_segments_intersected.push_back(ls_);
+		}
+	}
     
-    return threeD_line_segments_intersected.size();
+    return count;
 }
 
 

@@ -6,8 +6,8 @@ int main(int argc, char** argv)
 	cout << setprecision(20) << endl;
 	srand(0);
 
-	double dimension = 2.001;
-	const size_t n = 100000000;
+	double dimension = 2.999;
+	const size_t n = 10000000;
 
 	if (dimension <= 2)
 		dimension = 2.001;
@@ -15,7 +15,7 @@ int main(int argc, char** argv)
 		dimension = 3;
 
 	const double disk_like = 3 - dimension;
-	const double falloff_exponent = 2 - disk_like;
+	double falloff_exponent = 2 - disk_like;
 
 	// Start with pseudorandom oscillator locations
 	for (size_t i = 0; i < n; i++)
@@ -70,16 +70,17 @@ int main(int argc, char** argv)
 	const double start_distance = 10;
 	const double end_distance = 10000;
 
-	const size_t resolution = 100000;
+	const size_t resolution = 100;
 
 	const double step_size = (end_distance - start_distance) / (resolution - 1);
 
 	for (double r = start_distance; r <= end_distance; r += step_size)
 	{
 		vector_3 receiver_pos(r, 0, 0);
-		size_t collision_count = get_intersecting_line_segments(receiver_pos, 1.0, dimension);
 
-		cout << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
+		size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, dimension, true);
+
+		cout << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
 	}
 
 	return 0;
