@@ -6,16 +6,16 @@ int main(int argc, char** argv)
 	cout << setprecision(20) << endl;
 	srand(0);
 
-	double dimension = 2.5;
-
-	size_t n = 10000000;
+	double dimension = 2.001;
+	const size_t n = 100000000;
 
 	if (dimension <= 2)
-		dimension = 2.01;
+		dimension = 2.001;
 	else if (dimension > 3)
 		dimension = 3;
 
-	double disk_like = 3 - dimension;
+	const double disk_like = 3 - dimension;
+	const double falloff_exponent = 2 - disk_like;
 
 	// Start with pseudorandom oscillator locations
 	for (size_t i = 0; i < n; i++)
@@ -30,8 +30,6 @@ int main(int argc, char** argv)
 		ring.x = threeD_oscillators[i].x;
 		ring.y = 0;
 		ring.z = threeD_oscillators[i].z;
-
-		const double disk_like = 3 - dimension;
 
 		vector_3 s = slerp(threeD_oscillators[i], ring, disk_like);
 
@@ -69,12 +67,23 @@ int main(int argc, char** argv)
 	}
 
 	// Get intersecting lines
-	vector_3 reciever_pos(10, 0, 0);
-	size_t collision_count = get_intersecting_line_segments(reciever_pos, 1.0, dimension);
+	const double start_distance = 10;
+	const double end_distance = 10000;
 
-	double ratio = static_cast<double>(collision_count) / static_cast<double>(n);
+	const size_t resolution = 100000;
 
-	cout << ratio << endl;
+	const double step_size = (end_distance - start_distance) / (resolution - 1);
+
+	for (double r = start_distance; r <= end_distance; r += step_size)
+	{
+		vector_3 receiver_pos(r, 0, 0);
+		size_t collision_count = get_intersecting_line_segments(receiver_pos, 1.0, dimension);
+
+		cout << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
+	}
+
+	return 0;
+
 
 
 
