@@ -58,8 +58,6 @@ void draw_objects(void);
 
 
 
-size_t n = 10000000;
-
 
     
 
@@ -175,7 +173,7 @@ vector_3 EllipsoidNormal(vector_3 pos, vector_3 ra)
 
 
 
-void get_intersecting_line_segments(const vector_3 sphere_location,
+size_t get_intersecting_line_segments(const vector_3 sphere_location,
     const double sphere_radius,
     const double dimension)
 {
@@ -199,10 +197,39 @@ void get_intersecting_line_segments(const vector_3 sphere_location,
             }
         }
     }
+    
+    return threeD_line_segments_intersected.size();
 }
 
 
 
+
+vector_3 RandomUnitVector(void)
+{
+    double z = static_cast<double>(rand() % RAND_MAX) / static_cast<double>(RAND_MAX) * 2 - 1;
+    double a = static_cast<double>(rand() % RAND_MAX) / static_cast<double>(RAND_MAX) * 2 * pi;
+    double r = sqrt(1.0f - z * z);
+    double x = r * cos(a);
+    double y = r * sin(a);
+    return vector_3(x, y, z).normalize();
+}
+
+vector_3 slerp(vector_3 s0, vector_3 s1, const double t)
+{
+    vector_3 s0_norm = s0;
+    s0_norm.normalize();
+
+    vector_3 s1_norm = s1;
+    s1_norm.normalize();
+
+    const double cos_angle = s0_norm.dot(s1_norm);
+    const double angle = acos(cos_angle);
+
+    const double p0_factor = sin((1 - t) * angle) / sin(angle);
+    const double p1_factor = sin(t * angle) / sin(angle);
+
+    return s0 * p0_factor + s1 * p1_factor;
+}
 
 
 #endif

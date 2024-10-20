@@ -1,47 +1,14 @@
 #include "main.h"
 
 
-
-
-
-
-
-
-
-vector_3 RandomUnitVector(void)
-{
-	double z = static_cast<double>(rand() % RAND_MAX) / static_cast<double>(RAND_MAX) * 2 - 1;
-	double a = static_cast<double>(rand() % RAND_MAX) / static_cast<double>(RAND_MAX) * 2 * pi;
-	double r = sqrt(1.0f - z * z);
-	double x = r * cos(a);
-	double y = r * sin(a);
-	return vector_3(x, y, z).normalize();
-}
-
-vector_3 slerp(vector_3 s0, vector_3 s1, const double t)
-{
-	vector_3 s0_norm = s0;
-	s0_norm.normalize();
-
-	vector_3 s1_norm = s1;
-	s1_norm.normalize();
-
-	const double cos_angle = s0_norm.dot(s1_norm);
-	const double angle = acos(cos_angle);
-
-	const double p0_factor = sin((1 - t) * angle) / sin(angle);
-	const double p1_factor = sin(t * angle) / sin(angle);
-
-	return s0 * p0_factor + s1 * p1_factor;
-}
-
-
 int main(int argc, char** argv)
 {
 	cout << setprecision(20) << endl;
 	srand(0);
 
 	double dimension = 2.5;
+
+	size_t n = 10000000;
 
 	if (dimension <= 2)
 		dimension = 2.01;
@@ -50,13 +17,13 @@ int main(int argc, char** argv)
 
 	double disk_like = 3 - dimension;
 
+	// Start with pseudorandom oscillator locations
 	for (size_t i = 0; i < n; i++)
-	{
-		vector_3 rand_vector = RandomUnitVector();
-		threeD_oscillators.push_back(rand_vector);
-	}
+		threeD_oscillators.push_back(RandomUnitVector());
 
-	for (size_t i = 0; i < threeD_oscillators.size(); i++)
+	// Spread the oscillators out, so that they are distributed evenly across
+	// the surface of the ellipsoid emitter
+	for (size_t i = 0; i < n; i++)
 	{
 		vector_3 ring;
 
@@ -64,13 +31,14 @@ int main(int argc, char** argv)
 		ring.y = 0;
 		ring.z = threeD_oscillators[i].z;
 
-		const double disk_like = 3 - dimension; // where dimension is between 3.0 and 2.0
+		const double disk_like = 3 - dimension;
 
 		vector_3 s = slerp(threeD_oscillators[i], ring, disk_like);
 
 		threeD_oscillators[i] = s;
 	}
 
+	// Get position on oblate ellipsoid
 	for (size_t i = 0; i < n; i++)
 	{
 		vector_3 vec = threeD_oscillators[i];
@@ -80,6 +48,7 @@ int main(int argc, char** argv)
 		threeD_oscillators[i] = vector_3(rv.y, rv.z, rv.w);
 	}
 
+	// Get position and normal on prolate ellipsoid
 	for (size_t i = 0; i < n; i++)
 	{
 		vector_3 vec = threeD_oscillators[i];
@@ -99,10 +68,13 @@ int main(int argc, char** argv)
 		threeD_line_segments.push_back(ls);
 	}
 
-
+	// Get intersecting lines
 	vector_3 reciever_pos(10, 0, 0);
-	get_intersecting_line_segments(reciever_pos, 1.0, dimension);
+	size_t collision_count = get_intersecting_line_segments(reciever_pos, 1.0, dimension);
 
+	double ratio = static_cast<double>(collision_count) / static_cast<double>(n);
+
+	cout << ratio << endl;
 
 
 
