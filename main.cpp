@@ -58,8 +58,8 @@ int main(int argc, char** argv)
 
 	double dimension = 2.5;
 
-	if (dimension < 2)
-		dimension = 2;
+	if (dimension <= 2)
+		dimension = 2.01;
 	else if (dimension > 3)
 		dimension = 3;
 
@@ -117,10 +117,11 @@ int main(int argc, char** argv)
 
 	threeD_line_segments_intersected.clear();
 
+	// Receiver location
+	const vector_3 sphere_location(receiver_pos, 0, 0);
+
 	for (size_t i = 0; i < threeD_line_segments.size(); i++)
 	{
-		const vector_3 sphere_location(receiver_pos, 0, 0);
-
 		const vector_3 dir = (threeD_line_segments[i].end - threeD_line_segments[i].start).normalize();
 
 		if (dir.dot(sphere_location) > 0)
@@ -132,8 +133,6 @@ int main(int argc, char** argv)
 				line_segment_3 ls_;
 				ls_.start = threeD_line_segments[i].start;
 				ls_.end = threeD_line_segments[i].start + threeD_line_segments[i].end * mu2;
-
-				cout << (sphere_location - ls_.end).length() << endl;
 
 				threeD_line_segments_intersected.push_back(ls_);
 			}
