@@ -183,21 +183,26 @@ size_t get_intersecting_line_count(const vector_3 sphere_location,
 
 	for (size_t i = 0; i < threeD_line_segments.size(); i++)
 	{
-		double mu1 = 0, mu2 = 0;
+        const vector_3 dir = (threeD_line_segments[i].end - threeD_line_segments[i].start).normalize();
 
-		if (RaySphere(threeD_line_segments[i].start, threeD_line_segments[i].end, sphere_location, 1.0, &mu1, &mu2))
-		{
-			count++;
+        if (dir.dot(sphere_location) > 0)
+        {
+            double mu1 = 0, mu2 = 0;
 
-			if (skip_saving_intersected_segments)
-				continue;
+            if (RaySphere(threeD_line_segments[i].start, threeD_line_segments[i].end, sphere_location, 1.0, &mu1, &mu2))
+            {
+                count++;
 
-			line_segment_3 ls_;
-			ls_.start = threeD_line_segments[i].start;
-			ls_.end = threeD_line_segments[i].start + threeD_line_segments[i].end * mu2;
+                if (skip_saving_intersected_segments)
+                    continue;
 
-			threeD_line_segments_intersected.push_back(ls_);
-		}
+                line_segment_3 ls_;
+                ls_.start = threeD_line_segments[i].start;
+                ls_.end = threeD_line_segments[i].start + threeD_line_segments[i].end * mu2;
+
+                threeD_line_segments_intersected.push_back(ls_);
+            }
+        }
 	}
     
     return count;
