@@ -19,7 +19,14 @@ int main(int argc, char** argv)
 
 	// Start with pseudorandom oscillator locations
 	for (size_t i = 0; i < n; i++)
-		threeD_oscillators.push_back(RandomUnitVector());
+	{
+		vector_3 r = RandomUnitVector();
+		
+		//if (r.x < 0)
+		//	r.x = -r.x;
+
+		threeD_oscillators.push_back(r);
+	}
 
 	// Spread the oscillators out, so that they are distributed evenly across
 	// the surface of the ellipsoid emitter
@@ -59,7 +66,7 @@ int main(int argc, char** argv)
 
 		line_segment_3 ls;
 		ls.start = threeD_oscillators[i];
-		ls.end = threeD_oscillators[i] + normals[i] * 1e30;
+		ls.end = threeD_oscillators[i] + normals[i];// *1e30;
 
 		threeD_line_segments.push_back(ls);
 	}
@@ -182,14 +189,19 @@ void draw_objects(void)
 	glLineWidth(1.0f);
 
 
-	//glBegin(GL_POINTS);
+	glBegin(GL_POINTS);
 
-	//glColor3f(1, 1, 1);
+	glColor3f(1, 1, 1);
 
-	//for (size_t i = 0; i < threeD_oscillators.size(); i++)
-	//	glVertex3d(threeD_oscillators[i].x, threeD_oscillators[i].y, threeD_oscillators[i].z);
+	for (size_t i = 0; i < threeD_oscillators.size(); i++)
+	{
+		if (i % 1000 != 0)
+			continue;
 
-	//glEnd();
+		glVertex3d(threeD_oscillators[i].x, threeD_oscillators[i].y, threeD_oscillators[i].z);
+	}
+
+	glEnd();
 
 
 

@@ -185,7 +185,7 @@ size_t get_intersecting_line_count(const vector_3 sphere_location,
 	{
         const vector_3 dir = (threeD_line_segments[i].end - threeD_line_segments[i].start).normalize();
 
-        if (dir.dot(sphere_location) > 0)
+        if(dir.dot(sphere_location) > 0)
         {
             double mu1 = 0, mu2 = 0;
 
