@@ -15,7 +15,7 @@ int main(int argc, char** argv)
 		dimension = 3;
 
 	const double disk_like = 3 - dimension;
-	double falloff_exponent = 2 - disk_like;
+	const double falloff_exponent = 2 - disk_like;
 
 	// Start with pseudorandom oscillator locations
 	for (size_t i = 0; i < n; i++)
@@ -49,9 +49,7 @@ int main(int argc, char** argv)
 	// Get position and normal on prolate ellipsoid
 	for (size_t i = 0; i < n; i++)
 	{
-		vector_3 vec = threeD_oscillators[i];
-
-		const vector_4 rv = RayEllipsoid(vector_3(0, 0, 0), vec, vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
+		const vector_4 rv = RayEllipsoid(vector_3(0, 0, 0), threeD_oscillators[i], vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
 
 		vector_3 collision_point = vector_3(rv.y, rv.z, rv.w);
 
@@ -66,24 +64,28 @@ int main(int argc, char** argv)
 		threeD_line_segments.push_back(ls);
 	}
 
-	// Get intersecting lines
-	const double start_distance = 10;
-	const double end_distance = 10000;
+	vector_3 receiver_pos(10, 0, 0);
+	size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, dimension, false);
 
-	const size_t resolution = 100;
 
-	const double step_size = (end_distance - start_distance) / (resolution - 1);
+	//// Get intersecting lines
+	//const double start_distance = 10;
+	//const double end_distance = 10000;
 
-	for (double r = start_distance; r <= end_distance; r += step_size)
-	{
-		vector_3 receiver_pos(r, 0, 0);
+	//const size_t resolution = 100;
 
-		size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, dimension, true);
+	//const double step_size = (end_distance - start_distance) / (resolution - 1);
 
-		cout << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
-	}
+	//for (double r = start_distance; r <= end_distance; r += step_size)
+	//{
+	//	vector_3 receiver_pos(r, 0, 0);
 
-	return 0;
+	//	size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, dimension, true);
+
+	//	cout << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent - 1.0) << endl;
+	//}
+
+	//return 0;
 
 
 
