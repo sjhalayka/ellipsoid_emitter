@@ -21,10 +21,6 @@ int main(int argc, char** argv)
 	for (size_t i = 0; i < n; i++)
 	{
 		vector_3 r = RandomUnitVector();
-		
-		//if (r.x < 0)
-		//	r.x = -r.x;
-
 		threeD_oscillators.push_back(r);
 	}
 
@@ -71,28 +67,28 @@ int main(int argc, char** argv)
 		threeD_line_segments.push_back(ls);
 	}
 
-	vector_3 receiver_pos(10, 0, 0);
-	size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, dimension, false);
+	//vector_3 receiver_pos(10, 0, 0);
+	//size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, dimension, false);
 
 
-	//// Get intersecting lines
-	//const double start_distance = 10;
-	//const double end_distance = 10000;
+	// Get intersecting lines
+	const double start_distance = 10;
+	const double end_distance = 100;
 
-	//const size_t resolution = 100;
+	const size_t resolution = 100;
 
-	//const double step_size = (end_distance - start_distance) / (resolution - 1);
+	const double step_size = (end_distance - start_distance) / (resolution - 1);
 
-	//for (double r = start_distance; r <= end_distance; r += step_size)
-	//{
-	//	vector_3 receiver_pos(r, 0, 0);
+	for (double r = start_distance; r <= end_distance; r += step_size)
+	{
+		vector_3 receiver_pos(r, 0, 0);
 
-	//	size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, dimension, true);
+		size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, dimension, true);
 
-	//	cout << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent - 1.0) << endl;
-	//}
+		cout << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
+	}
 
-	//return 0;
+	return 0;
 
 
 
