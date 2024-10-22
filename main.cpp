@@ -102,6 +102,8 @@ int main(int argc, char** argv)
 
 			size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, D, true);
 
+			// todo: get gradient of collision count at r
+
 			cout << "D " << D << " " << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
 
 			out_file << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
