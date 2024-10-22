@@ -20,7 +20,7 @@ int main(int argc, char** argv)
 		threeD_line_segments.clear();
 		threeD_line_segments_intersected.clear();
 
-		const size_t n = 1000000;
+		const size_t n = c_meters * c_meters;
 
 		//if (dimension <= 2)
 		//	dimension = 2.001;
@@ -92,7 +92,7 @@ int main(int argc, char** argv)
 		const double start_distance = 10;
 		const double end_distance = 100;
 
-		const size_t distance_res = 100;
+		const size_t distance_res = 1000;
 
 		const double distance_step_size = (end_distance - start_distance) / (distance_res - 1);
 
@@ -100,13 +100,25 @@ int main(int argc, char** argv)
 		{
 			vector_3 receiver_pos(r, 0, 0);
 
+			const double epsilon = 1e-3;
+
+			vector_3 receiver_pos_minus = receiver_pos;
+			receiver_pos_minus.x -= epsilon;
+
+			vector_3 receiver_pos_plus = receiver_pos;
+			receiver_pos_plus.x += epsilon;
+
+			size_t collision_count_minus = get_intersecting_line_count(receiver_pos_minus, 1.0, D, true);
 			size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, D, true);
+			size_t collision_count_plus = get_intersecting_line_count(receiver_pos_plus, 1.0, D, true);
 
-			// todo: get gradient of collision count at r
+			vector_3 gradient = (collision_count_minus - collision_count_plus) / (2.0 * epsilon);
 
-			cout << "D " << D << " " << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
+			cout << gradient.length() << endl;// *pow(receiver_pos.x, falloff_exponent) << endl;
 
-			out_file << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
+			//cout << "D " << D << " " << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
+
+			out_file << r << " " << gradient.length() << endl;// *pow(receiver_pos.x, falloff_exponent) << endl;
 		}
 
 		out_file.close();
