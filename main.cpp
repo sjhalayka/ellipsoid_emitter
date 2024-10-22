@@ -6,89 +6,130 @@ int main(int argc, char** argv)
 	cout << setprecision(20) << endl;
 	srand(0);
 
-	double dimension = 2.999;
-	const size_t n = 10000000;
+	const double start_dim = 2.001;
+	const double end_dim = 3;
 
-	if (dimension <= 2)
-		dimension = 2.001;
-	else if (dimension > 3)
-		dimension = 3;
+	const size_t dim_res = 3;
 
-	const double disk_like = 3 - dimension;
-	const double falloff_exponent = 2 - disk_like;
+	const double dim_step_size = (end_dim - start_dim) / (dim_res - 1);
 
-	// Start with pseudorandom oscillator locations
-	for (size_t i = 0; i < n; i++)
+	for (double D = start_dim; D <= end_dim; D += dim_step_size)
 	{
-		vector_3 r = RandomUnitVector();
-		threeD_oscillators.push_back(r);
-	}
+		threeD_oscillators.clear();
+		normals.clear();
+		threeD_line_segments.clear();
+		threeD_line_segments_intersected.clear();
 
-	// Spread the oscillators out, so that they are distributed evenly across
-	// the surface of the ellipsoid emitter
-	for (size_t i = 0; i < n; i++)
-	{
-		vector_3 ring;
+		const size_t n = 1000000;
 
-		ring.x = threeD_oscillators[i].x;
-		ring.y = 0;
-		ring.z = threeD_oscillators[i].z;
+		//if (dimension <= 2)
+		//	dimension = 2.001;
+		//else if (dimension > 3)
+		//	dimension = 3;
 
-		vector_3 s = slerp(threeD_oscillators[i], ring, disk_like);
+		const double disk_like = 3 - D;
+		const double falloff_exponent = 2 - disk_like;
 
-		threeD_oscillators[i] = s;
-	}
+		// Start with pseudorandom oscillator locations
+		for (size_t i = 0; i < n; i++)
+		{
+			vector_3 r = RandomUnitVector();
+			threeD_oscillators.push_back(r);
+		}
 
-	// Get position on oblate ellipsoid
-	for (size_t i = 0; i < n; i++)
-	{
-		vector_3 vec = threeD_oscillators[i];
+		// Spread the oscillators out, so that they are distributed evenly across
+		// the surface of the ellipsoid emitter
+		for (size_t i = 0; i < n; i++)
+		{
+			vector_3 ring;
 
-		const vector_4 rv = RayEllipsoid(vector_3(0, 0, 0), vec, vector_3(1.0, 1.0 - disk_like, 1.0));
+			ring.x = threeD_oscillators[i].x;
+			ring.y = 0;
+			ring.z = threeD_oscillators[i].z;
 
-		threeD_oscillators[i] = vector_3(rv.y, rv.z, rv.w);
-	}
+			vector_3 s = slerp(threeD_oscillators[i], ring, disk_like);
 
-	// Get position and normal on prolate ellipsoid
-	for (size_t i = 0; i < n; i++)
-	{
-		const vector_4 rv = RayEllipsoid(vector_3(0, 0, 0), threeD_oscillators[i], vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
+			threeD_oscillators[i] = s;
+		}
 
-		vector_3 collision_point = vector_3(rv.y, rv.z, rv.w);
+		// Get position on oblate ellipsoid
+		for (size_t i = 0; i < n; i++)
+		{
+			vector_3 vec = threeD_oscillators[i];
 
-		vector_3 normal = EllipsoidNormal(collision_point, vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
+			const vector_4 rv = RayEllipsoid(vector_3(0, 0, 0), vec, vector_3(1.0, 1.0 - disk_like, 1.0));
 
-		normals.push_back(normal);
+			threeD_oscillators[i] = vector_3(rv.y, rv.z, rv.w);
+		}
 
-		line_segment_3 ls;
-		ls.start = threeD_oscillators[i];
-		ls.end = threeD_oscillators[i] + normals[i];// *1e30;
+		// Get position and normal on prolate ellipsoid
+		for (size_t i = 0; i < n; i++)
+		{
+			const vector_4 rv = RayEllipsoid(vector_3(0, 0, 0), threeD_oscillators[i], vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
 
-		threeD_line_segments.push_back(ls);
-	}
+			vector_3 collision_point = vector_3(rv.y, rv.z, rv.w);
 
-	//vector_3 receiver_pos(10, 0, 0);
-	//size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, dimension, false);
+			vector_3 normal = EllipsoidNormal(collision_point, vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
+
+			normals.push_back(normal);
+
+			line_segment_3 ls;
+			ls.start = threeD_oscillators[i];
+			ls.end = threeD_oscillators[i] + normals[i];// *1e30;
+
+			threeD_line_segments.push_back(ls);
+		}
+
+		//vector_3 receiver_pos(10, 0, 0);
+		//size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, dimension, false);
 
 
-	// Get intersecting lines
-	const double start_distance = 10;
-	const double end_distance = 100;
+		string filename = to_string(D) + ".txt";
 
-	const size_t resolution = 100;
+		ofstream out_file(filename.c_str());
 
-	const double step_size = (end_distance - start_distance) / (resolution - 1);
+		//// Get intersecting lines
+		const double start_distance = 10;
+		const double end_distance = 100;
 
-	for (double r = start_distance; r <= end_distance; r += step_size)
-	{
-		vector_3 receiver_pos(r, 0, 0);
+		const size_t distance_res = 100;
 
-		size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, dimension, true);
+		const double distance_step_size = (end_distance - start_distance) / (distance_res - 1);
 
-		cout << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
+		for (double r = start_distance; r <= end_distance; r += distance_step_size)
+		{
+			vector_3 receiver_pos(r, 0, 0);
+
+			size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, D, true);
+
+			cout << "D " << D << " " << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
+
+			out_file << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
+		}
+
+		out_file.close();
+
+
+
+
+		//vector_3 receiver_pos(100, 0, 0);
+
+		//size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, D, true);
+
+		//cout << D << " " << collision_count << endl;
 	}
 
 	return 0;
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -207,24 +248,24 @@ void draw_objects(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
-	//glBegin(GL_LINES);
+	glBegin(GL_LINES);
 
-	//glColor4f(0, 1, 0, 0.1f);
+	glColor4f(1.0f, 0.5f, 0, 1.0f);
 
-	//for (size_t i = 0; i < threeD_oscillators.size(); i++)
-	//{
-	//	//if (threeD_line_segments[i].start.z > 0 || threeD_line_segments[i].end.z > 0)
-	//	//	continue;
+	for (size_t i = 0; i < threeD_oscillators.size(); i++)
+	{
+		//if (threeD_line_segments[i].start.z > 0 || threeD_line_segments[i].end.z > 0)
+		//	continue;
 
-	//	if (threeD_oscillators[i].z > 0)
-	//		continue;
+		if (threeD_oscillators[i].z > 0)
+			continue;
 
 
-	//	glVertex3d(threeD_oscillators[i].x, threeD_oscillators[i].y, threeD_oscillators[i].z);
-	//	glVertex3d(threeD_oscillators[i].x + normals[i].x, threeD_oscillators[i].y + normals[i].y, threeD_oscillators[i].z + normals[i].z);
-	//}
+		glVertex3d(threeD_oscillators[i].x, threeD_oscillators[i].y, threeD_oscillators[i].z);
+		glVertex3d(threeD_oscillators[i].x + normals[i].x, threeD_oscillators[i].y + normals[i].y, threeD_oscillators[i].z + normals[i].z);
+	}
 
-	//glEnd();
+	glEnd();
 
 
 
@@ -252,17 +293,17 @@ void draw_objects(void)
 
 
 
-	glBegin(GL_LINES);
+	//glBegin(GL_LINES);
 
-	glColor4f(0, 0, 1, 0.1f);
+	//glColor4f(0, 0, 1, 0.1f);
 
-	for (size_t i = 0; i < threeD_line_segments_intersected.size(); i++)
-	{
-		glVertex3d(threeD_line_segments_intersected[i].start.x, threeD_line_segments_intersected[i].start.y, threeD_line_segments_intersected[i].start.z);
-		glVertex3d(threeD_line_segments_intersected[i].end.x, threeD_line_segments_intersected[i].end.y, threeD_line_segments_intersected[i].end.z);
-	}
+	//for (size_t i = 0; i < threeD_line_segments_intersected.size(); i++)
+	//{
+	//	glVertex3d(threeD_line_segments_intersected[i].start.x, threeD_line_segments_intersected[i].start.y, threeD_line_segments_intersected[i].start.z);
+	//	glVertex3d(threeD_line_segments_intersected[i].end.x, threeD_line_segments_intersected[i].end.y, threeD_line_segments_intersected[i].end.z);
+	//}
 
-	glEnd();
+	//glEnd();
 
 
 

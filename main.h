@@ -24,6 +24,7 @@ using std::vector;
 
 #include <string>
 using std::string;
+using std::to_string;
 
 #include <sstream>
 using std::ostringstream;
@@ -67,13 +68,12 @@ const double G = 6.67430e-11;
 
 vector<vector_3> threeD_oscillators;
 vector<vector_3> normals;
+vector<line_segment_3> threeD_line_segments;
+vector<line_segment_3> threeD_line_segments_intersected;
 
 const double pi = 4.0f * atanf(1.0f);
 const double c_meters = 299792458;
 
-
-vector<line_segment_3> threeD_line_segments;
-vector<line_segment_3> threeD_line_segments_intersected;
 
 
 
