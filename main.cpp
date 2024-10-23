@@ -92,7 +92,7 @@ int main(int argc, char** argv)
 		const double start_distance = 10;
 		const double end_distance = 100;
 
-		const size_t distance_res = 1000;
+		const size_t distance_res = 100;
 
 		const double distance_step_size = (end_distance - start_distance) / (distance_res - 1);
 
@@ -100,7 +100,7 @@ int main(int argc, char** argv)
 		{
 			vector_3 receiver_pos(r, 0, 0);
 
-			const double epsilon = 1e-3;
+			const double epsilon = 1;
 
 			vector_3 receiver_pos_minus = receiver_pos;
 			receiver_pos_minus.x -= epsilon;
@@ -112,13 +112,14 @@ int main(int argc, char** argv)
 			size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, D, true);
 			size_t collision_count_plus = get_intersecting_line_count(receiver_pos_plus, 1.0, D, true);
 
-			vector_3 gradient = (collision_count_minus - collision_count_plus) / (2.0 * epsilon);
+			vector_3 gradient;
+			gradient.x = (collision_count_minus - collision_count_plus) / (2.0 * epsilon);
 
-			cout << gradient.length() << endl;// *pow(receiver_pos.x, falloff_exponent) << endl;
+			cout << gradient.length() * pow(receiver_pos.x, falloff_exponent) << endl;// / collision_count << endl;//  << endl;
 
 			//cout << "D " << D << " " << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
 
-			out_file << r << " " << gradient.length() << endl;// *pow(receiver_pos.x, falloff_exponent) << endl;
+			out_file << r << " " << gradient.length() * pow(receiver_pos.x, falloff_exponent) << endl;// / collision_count << endl;// *pow(receiver_pos.x, falloff_exponent) << endl;
 		}
 
 		out_file.close();
