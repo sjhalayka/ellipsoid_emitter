@@ -6,7 +6,7 @@ int main(int argc, char** argv)
 	cout << setprecision(20) << endl;
 	srand(0);
 
-	const double start_dim = 2.001;
+	const double start_dim = 2.000001;
 	const double end_dim = 3;
 
 	const size_t dim_res = 3;
@@ -20,7 +20,7 @@ int main(int argc, char** argv)
 		threeD_line_segments.clear();
 		threeD_line_segments_intersected.clear();
 
-		const size_t n = c_meters * c_meters;
+		const size_t n = 1000000;
 
 		//if (dimension <= 2)
 		//	dimension = 2.001;
@@ -29,6 +29,7 @@ int main(int argc, char** argv)
 
 		const double disk_like = 3 - D;
 		const double falloff_exponent = 2 - disk_like;
+		const double fractionality = 1.0 - 2.0 * (0.5 - fmod(D, 1.0));
 
 		// Start with pseudorandom oscillator locations
 		for (size_t i = 0; i < n; i++)
@@ -100,26 +101,30 @@ int main(int argc, char** argv)
 		{
 			vector_3 receiver_pos(r, 0, 0);
 
-			const double epsilon = 1;
-
-			vector_3 receiver_pos_minus = receiver_pos;
-			receiver_pos_minus.x -= epsilon;
-
-			vector_3 receiver_pos_plus = receiver_pos;
-			receiver_pos_plus.x += epsilon;
-
-			size_t collision_count_minus = get_intersecting_line_count(receiver_pos_minus, 1.0, D, true);
 			size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, D, true);
-			size_t collision_count_plus = get_intersecting_line_count(receiver_pos_plus, 1.0, D, true);
 
-			vector_3 gradient;
-			gradient.x = (collision_count_minus - collision_count_plus) / (2.0 * epsilon);
+			cout << "D: " << D << " falloff exponent: " << falloff_exponent << " r: " << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
 
-			cout << gradient.length() * pow(receiver_pos.x, falloff_exponent) << endl;// / collision_count << endl;//  << endl;
+			out_file << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
+		
+		
+		
+			//const double epsilon = 1;
 
-			//cout << "D " << D << " " << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
+			//vector_3 receiver_pos_minus = receiver_pos;
+			//receiver_pos_minus.x -= epsilon;
 
-			out_file << r << " " << gradient.length() * pow(receiver_pos.x, falloff_exponent) << endl;// / collision_count << endl;// *pow(receiver_pos.x, falloff_exponent) << endl;
+			//vector_3 receiver_pos_plus = receiver_pos;
+			//receiver_pos_plus.x += epsilon;
+
+			//size_t collision_count_minus = get_intersecting_line_count(receiver_pos_minus, 1.0, D, true);
+			//size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, D, true);
+			//size_t collision_count_plus = get_intersecting_line_count(receiver_pos_plus, 1.0, D, true);
+
+			//vector_3 gradient;
+			//gradient.x = (collision_count_minus - collision_count_plus) / (2.0 * epsilon);
+
+			//cout << gradient.length() * pow(receiver_pos.x, falloff_exponent) << endl;// / co
 		}
 
 		out_file.close();
