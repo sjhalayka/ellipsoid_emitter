@@ -6,8 +6,8 @@ int main(int argc, char** argv)
 	cout << setprecision(20) << endl;
 	srand(0);
 
-	const double start_dim = 2.000001;
-	const double end_dim = 3;
+	const double start_dim = 2.49;
+	const double end_dim = 2.5;
 
 	const size_t dim_res = 3;
 
@@ -30,6 +30,8 @@ int main(int argc, char** argv)
 		const double disk_like = 3 - D;
 		const double falloff_exponent = 2 - disk_like;
 		const double fractionality = 1.0 - 2.0 * (0.5 - fmod(D, 1.0));
+
+		//cout << fractionality << endl;
 
 		// Start with pseudorandom oscillator locations
 		for (size_t i = 0; i < n; i++)
@@ -76,58 +78,68 @@ int main(int argc, char** argv)
 
 			line_segment_3 ls;
 			ls.start = threeD_oscillators[i];
-			ls.end = threeD_oscillators[i] + normals[i];// *1e30;
+			ls.end = threeD_oscillators[i] + normals[i]*1e30;
 
 			threeD_line_segments.push_back(ls);
 		}
 
-		//vector_3 receiver_pos(10, 0, 0);
-		//size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, dimension, false);
+		vector_3 receiver_pos(10, 0, 0);
+		size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, D, false);
 
 
-		string filename = to_string(D) + ".txt";
 
-		ofstream out_file(filename.c_str());
 
-		//// Get intersecting lines
-		const double start_distance = 10;
-		const double end_distance = 100;
 
-		const size_t distance_res = 100;
 
-		const double distance_step_size = (end_distance - start_distance) / (distance_res - 1);
+		//string filename = to_string(D) + ".txt";
 
-		for (double r = start_distance; r <= end_distance; r += distance_step_size)
-		{
-			vector_3 receiver_pos(r, 0, 0);
+		//ofstream out_file(filename.c_str());
 
-			size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, D, true);
+		////// Get intersecting lines
+		//const double start_distance = 10;
+		//const double end_distance = 100;
 
-			cout << "D: " << D << " falloff exponent: " << falloff_exponent << " r: " << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
+		//const size_t distance_res = 100;
 
-			out_file << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
+		//const double distance_step_size = (end_distance - start_distance) / (distance_res - 1);
+
+		//for (double r = start_distance; r <= end_distance; r += distance_step_size)
+		//{
+		//	vector_3 receiver_pos(r, 0, 0);
+
+		//	size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, D, true);
+
+		//	//cout << "D: " << D << " falloff exponent: " << falloff_exponent << " r: " << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
+
+		//	out_file << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
+
+
+
+
+
+
+		//	//const double epsilon = 1;
+
+		//	//vector_3 receiver_pos_minus = receiver_pos;
+		//	//receiver_pos_minus.x -= epsilon;
+
+		//	//vector_3 receiver_pos_plus = receiver_pos;
+		//	//receiver_pos_plus.x += epsilon;
+
+		//	//size_t collision_count_minus = get_intersecting_line_count(receiver_pos_minus, 1.0, D, true);
+		//	//size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, D, true);
+		//	//size_t collision_count_plus = get_intersecting_line_count(receiver_pos_plus, 1.0, D, true);
+
+		//	//vector_3 gradient;
+		//	//gradient.x = (collision_count_minus - collision_count_plus) / (2.0 * epsilon);
+
+		//	//cout << gradient.length() * pow(receiver_pos.x, falloff_exponent) << endl;// / co
 		
 		
 		
-			//const double epsilon = 1;
+		//}
 
-			//vector_3 receiver_pos_minus = receiver_pos;
-			//receiver_pos_minus.x -= epsilon;
-
-			//vector_3 receiver_pos_plus = receiver_pos;
-			//receiver_pos_plus.x += epsilon;
-
-			//size_t collision_count_minus = get_intersecting_line_count(receiver_pos_minus, 1.0, D, true);
-			//size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, D, true);
-			//size_t collision_count_plus = get_intersecting_line_count(receiver_pos_plus, 1.0, D, true);
-
-			//vector_3 gradient;
-			//gradient.x = (collision_count_minus - collision_count_plus) / (2.0 * epsilon);
-
-			//cout << gradient.length() * pow(receiver_pos.x, falloff_exponent) << endl;// / co
-		}
-
-		out_file.close();
+		//out_file.close();
 
 
 
@@ -139,7 +151,7 @@ int main(int argc, char** argv)
 		//cout << D << " " << collision_count << endl;
 	}
 
-	return 0;
+	//return 0;
 
 
 
@@ -313,17 +325,17 @@ void draw_objects(void)
 
 
 
-	//glBegin(GL_LINES);
+	glBegin(GL_LINES);
 
-	//glColor4f(0, 0, 1, 0.1f);
+	glColor4f(0, 0, 1, 0.1f);
 
-	//for (size_t i = 0; i < threeD_line_segments_intersected.size(); i++)
-	//{
-	//	glVertex3d(threeD_line_segments_intersected[i].start.x, threeD_line_segments_intersected[i].start.y, threeD_line_segments_intersected[i].start.z);
-	//	glVertex3d(threeD_line_segments_intersected[i].end.x, threeD_line_segments_intersected[i].end.y, threeD_line_segments_intersected[i].end.z);
-	//}
+	for (size_t i = 0; i < threeD_line_segments_intersected.size(); i++)
+	{
+		glVertex3d(threeD_line_segments_intersected[i].start.x, threeD_line_segments_intersected[i].start.y, threeD_line_segments_intersected[i].start.z);
+		glVertex3d(threeD_line_segments_intersected[i].end.x, threeD_line_segments_intersected[i].end.y, threeD_line_segments_intersected[i].end.z);
+	}
 
-	//glEnd();
+	glEnd();
 
 
 
