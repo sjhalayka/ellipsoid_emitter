@@ -3,33 +3,35 @@
 
 int main(int argc, char** argv)
 {
-	cout << setprecision(20) << endl;
+	cout << setprecision(30);
 	srand(0);
 
-	const double start_dim = 2.01;
-	const double end_dim = 3;
+	const long double start_dim = 2.01;
+	const long double end_dim = 3;
 
-	const size_t dim_res = 3;
+	const size_t dim_res = 10;
 
-	const double dim_step_size = (end_dim - start_dim) / (dim_res - 1);
+	const long double dim_step_size = (end_dim - start_dim) / (dim_res - 1);
 
-	for (double D = start_dim; D <= end_dim; D += dim_step_size)
+	for (long double D = start_dim; D <= end_dim; D += dim_step_size)
 	{
 		threeD_oscillators.clear();
 		normals.clear();
 		threeD_line_segments.clear();
 		threeD_line_segments_intersected.clear();
+		output_points.clear();
+		points_map.clear();
 
-		const size_t n = 1000000;
+		const size_t n = 10000000;
 
 		//if (dimension <= 2)
 		//	dimension = 2.001;
 		//else if (dimension > 3)
 		//	dimension = 3;
 
-		const double disk_like = 3 - D;
-		const double falloff_exponent = 2 - disk_like;
-		const double fractionality = 1.0 - 2.0 * (0.5 - fmod(D, 1.0));
+		const long double disk_like = 3 - D;
+		const long double falloff_exponent = 2 - disk_like;
+		const long double fractionality = 1.0 - 2.0 * (0.5 - fmod(D, 1.0));
 
 		//cout << fractionality << endl;
 
@@ -78,13 +80,17 @@ int main(int argc, char** argv)
 
 			line_segment_3 ls;
 			ls.start = threeD_oscillators[i];
-			ls.end = threeD_oscillators[i] + normals[i]*1e30;
+			ls.end = threeD_oscillators[i] + normals[i] *1e30;
 
 			threeD_line_segments.push_back(ls);
 		}
 
-	//	vector_3 receiver_pos(10, 0, 0);
-//		size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, D, false);
+		//vector_3 receiver_pos(10, 0, 0);
+		//size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, D, true);
+
+		//cout << D << " " << collision_count << endl;// *pow(receiver_pos.x, falloff_exponent) << endl;
+
+
 
 
 
@@ -95,52 +101,90 @@ int main(int argc, char** argv)
 
 		ofstream out_file(filename.c_str());
 
+	//	out_file << "r, output" << endl;
+
+		out_file << setprecision(30);
+
+
 		//// Get intersecting lines
-		const double start_distance = 10;
-		const double end_distance = 100;
+		const long double start_distance = 10;
+		const long double end_distance = 100;	
 
-		const size_t distance_res = 100;
+		const size_t distance_res = 10000;
 
-		const double distance_step_size = (end_distance - start_distance) / (distance_res - 1);
+		const long double distance_step_size = (end_distance - start_distance) / (distance_res - 1);
 
-		for (double r = start_distance; r <= end_distance; r += distance_step_size)
+		for (long double r = start_distance; r <= end_distance; r += distance_step_size)
 		{
 			vector_3 receiver_pos(r, 0, 0);
 
-			size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, D, true);
-
-			cout << "D: " << D << " falloff exponent: " << falloff_exponent << " r: " << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
-
-			out_file << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent) << endl;
 
 
+			//size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, D, true);
+
+			//cout << "D: " << D << " falloff exponent: " << (falloff_exponent + 1) << " r: " << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent + 1) << endl;
+
+			//out_file << r << " " << collision_count * pow(receiver_pos.x, falloff_exponent + 1) << endl;
 
 
 
 
-			//const double epsilon = 1;
+
+			//vector_3 v;
+			//v.x = r;
+			//v.y = static_cast<long double>(collision_count) * pow(receiver_pos.x, falloff_exponent);
+			//v.z = 0;
+
+			//output_points.push_back(v);
+			//points_map[v]++;//.insert().insert(v);
+
+
+
+
+			const long double epsilon = 0.1;
 
 			//vector_3 receiver_pos_minus = receiver_pos;
 			//receiver_pos_minus.x -= epsilon;
 
-			//vector_3 receiver_pos_plus = receiver_pos;
-			//receiver_pos_plus.x += epsilon;
+			vector_3 receiver_pos_plus = receiver_pos;
+			receiver_pos_plus.x += epsilon;
 
 			//size_t collision_count_minus = get_intersecting_line_count(receiver_pos_minus, 1.0, D, true);
-			//size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, D, true);
-			//size_t collision_count_plus = get_intersecting_line_count(receiver_pos_plus, 1.0, D, true);
+			size_t collision_count = get_intersecting_line_count(receiver_pos, 1.0, D, true);
+			size_t collision_count_plus = get_intersecting_line_count(receiver_pos_plus, 1.0, D, true);
 
-			//vector_3 gradient;
-			//gradient.x = (collision_count_minus - collision_count_plus) / (2.0 * epsilon);
+			vector_3 gradient;
+			gradient.x = (collision_count - collision_count_plus) / (epsilon);
 
-			//cout << gradient.length() * pow(receiver_pos.x, falloff_exponent) << endl;// / co
-		
-		
-		
+			cout << "D: " << D << " falloff exponent: " << (falloff_exponent + 1) << " r: " << r << " " << gradient.length() * pow(receiver_pos.x, falloff_exponent + 1) << endl;
+
+			out_file << r << " " << gradient.length() * pow(receiver_pos.x, falloff_exponent + 1) << endl;
 		}
 
 		out_file.close();
 
+
+		biggest_x = -DBL_MAX;
+		smallest_x = DBL_MAX;
+
+		biggest_y = -DBL_MAX;
+		smallest_y = DBL_MAX;
+
+		for (size_t i = 0; i < output_points.size(); i++)
+		{
+			if (output_points[i].x > biggest_x)
+				biggest_x = output_points[i].x;
+
+			if (output_points[i].x < smallest_x)
+				smallest_x = output_points[i].x;
+
+			if (output_points[i].y > biggest_y)
+				biggest_y = output_points[i].y;
+
+			if (output_points[i].y < smallest_y)
+				smallest_y = output_points[i].y;
+
+		}
 
 
 
@@ -154,8 +198,8 @@ int main(int argc, char** argv)
 	return 0;
 
 
-
-
+	cout << output_points.size() << endl;
+	cout << points_map.size() << endl;
 
 
 
@@ -251,28 +295,45 @@ void draw_objects(void)
 {
 	glDisable(GL_LIGHTING);
 
+
 	glPushMatrix();
 
-	//glScaled(1.0 / receiver_radius, 1.0 / receiver_radius, 1.0 / receiver_radius);
-	glPointSize(1.0);
+
+	glScaled(1.0 / biggest_x, 1.0 / biggest_y, 1.0);
+
+	glTranslated(-smallest_x, -smallest_y, 0);
+
+
+	glPointSize(2.0);
 	glLineWidth(1.0f);
+
+
+	//glBegin(GL_POINTS);
+
+	//glColor3f(1, 1, 1);
+
+	//for (size_t i = 0; i < threeD_oscillators.size(); i++)
+	//{
+	//	if (i % 1000 != 0)
+	//		continue;
+
+	//	glVertex3d(threeD_oscillators[i].x, threeD_oscillators[i].y, threeD_oscillators[i].z);
+	//}
+
+	//glEnd();
+
 
 
 	glBegin(GL_POINTS);
 
 	glColor3f(1, 1, 1);
 
-	for (size_t i = 0; i < threeD_oscillators.size(); i++)
+	for (size_t i = 0; i < output_points.size(); i++)
 	{
-		if (i % 1000 != 0)
-			continue;
-
-		glVertex3d(threeD_oscillators[i].x, threeD_oscillators[i].y, threeD_oscillators[i].z);
+		glVertex3d(output_points[i].x, output_points[i].y, 0);
 	}
 
 	glEnd();
-
-
 
 
 	glEnable(GL_ALPHA);
@@ -280,24 +341,24 @@ void draw_objects(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
-	glBegin(GL_LINES);
+	//glBegin(GL_LINES);
 
-	glColor4f(1.0f, 0.5f, 0, 1.0f);
+	//glColor4f(1.0f, 0.5f, 0, 1.0f);
 
-	for (size_t i = 0; i < threeD_oscillators.size(); i++)
-	{
-		//if (threeD_line_segments[i].start.z > 0 || threeD_line_segments[i].end.z > 0)
-		//	continue;
+	//for (size_t i = 0; i < threeD_oscillators.size(); i++)
+	//{
+	//	//if (threeD_line_segments[i].start.z > 0 || threeD_line_segments[i].end.z > 0)
+	//	//	continue;
 
-		if (threeD_oscillators[i].z > 0)
-			continue;
+	//	if (threeD_oscillators[i].z > 0)
+	//		continue;
 
 
-		glVertex3d(threeD_oscillators[i].x, threeD_oscillators[i].y, threeD_oscillators[i].z);
-		glVertex3d(threeD_oscillators[i].x + normals[i].x, threeD_oscillators[i].y + normals[i].y, threeD_oscillators[i].z + normals[i].z);
-	}
+	//	glVertex3d(threeD_oscillators[i].x, threeD_oscillators[i].y, threeD_oscillators[i].z);
+	//	glVertex3d(threeD_oscillators[i].x + normals[i].x, threeD_oscillators[i].y + normals[i].y, threeD_oscillators[i].z + normals[i].z);
+	//}
 
-	glEnd();
+	//glEnd();
 
 
 
@@ -325,17 +386,17 @@ void draw_objects(void)
 
 
 
-	glBegin(GL_LINES);
+	//glBegin(GL_LINES);
 
-	glColor4f(0, 0, 1, 0.1f);
+	//glColor4f(0, 0, 1, 0.1f);
 
-	for (size_t i = 0; i < threeD_line_segments_intersected.size(); i++)
-	{
-		glVertex3d(threeD_line_segments_intersected[i].start.x, threeD_line_segments_intersected[i].start.y, threeD_line_segments_intersected[i].start.z);
-		glVertex3d(threeD_line_segments_intersected[i].end.x, threeD_line_segments_intersected[i].end.y, threeD_line_segments_intersected[i].end.z);
-	}
+	//for (size_t i = 0; i < threeD_line_segments_intersected.size(); i++)
+	//{
+	//	glVertex3d(threeD_line_segments_intersected[i].start.x, threeD_line_segments_intersected[i].start.y, threeD_line_segments_intersected[i].start.z);
+	//	glVertex3d(threeD_line_segments_intersected[i].end.x, threeD_line_segments_intersected[i].end.y, threeD_line_segments_intersected[i].end.z);
+	//}
 
-	glEnd();
+	//glEnd();
 
 
 
@@ -534,8 +595,8 @@ void motion_func(int x, int y)
 	{
 		main_camera.w -= static_cast<float>(mouse_delta_y) * w_spacer;
 
-		if (main_camera.w < 2.0f)
-			main_camera.w = 2.0f;
+		if (main_camera.w < 0.00001)
+			main_camera.w = 0.00001;
 
 	}
 
