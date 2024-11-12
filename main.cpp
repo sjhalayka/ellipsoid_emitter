@@ -3,13 +3,13 @@
 
 int main(int argc, char** argv)
 {
-	cout << setprecision(30);
+	cout << setprecision(10);
 	srand(0);
 
-	const long double start_dim = 2.5;
+	const long double start_dim = 2.001;
 	const long double end_dim = 3;
 
-	const size_t dim_res = 3;
+	const size_t dim_res = 10;
 
 	const long double dim_step_size = (end_dim - start_dim) / (dim_res - 1);
 
@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 		output_points.clear();
 		points_map.clear();
 
-		const size_t n = 1000000;
+		const size_t n = 10000000;
 
 		//if (dimension <= 2)
 		//	dimension = 2.001;
@@ -35,18 +35,18 @@ int main(int argc, char** argv)
 		const long double disk_like = 3 - D;
 		long double falloff_exponent = 2 - disk_like;
 
-		long double y = 2 - disk_like;
+		//long double y = 2 - disk_like;
 
-		if (y > 1)
-		{
-			y--;
-			y = sqrt(y);
-			y++;
-		}
+		//if (y > 1)
+		//{
+		//	y--;
+		//	y = sqrt(y);
+		//	y++;
+		//}
 
-		falloff_exponent = y;
+		//falloff_exponent = y;
 
-		cout << falloff_exponent << endl;
+		//cout << falloff_exponent << endl;
 
 
 
@@ -129,7 +129,7 @@ int main(int argc, char** argv)
 		const long double start_distance = 10;
 		const long double end_distance = 100;	
 
-		const size_t distance_res = 1000;
+		const size_t distance_res = 10000;
 
 		const long double distance_step_size = (end_distance - start_distance) / (distance_res - 1);
 
