@@ -4,8 +4,8 @@
 #define custom_math_h
 
 
-#include <boost/multiprecision/cpp_bin_float.hpp>
-using namespace boost::multiprecision;
+//#include <boost/multiprecision/cpp_bin_float.hpp>
+//using namespace boost::multiprecision;
 //using cpp_bin_float_100_ = number<backends::cpp_bin_float<1024, backends::digit_base_10, void, std::int16_t, -1022, 1023>, et_off >;
 //typedef cpp_bin_float_100_ MyBig;
 //typedef long double MyBig;
