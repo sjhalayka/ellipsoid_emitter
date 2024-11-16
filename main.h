@@ -80,7 +80,7 @@ const MyBig pi = 4.0 * atan(1.0);
 vector<vector_3> threeD_oscillators;
 vector<vector_3> normals;
 vector<line_segment_3> threeD_line_segments;
-vector<line_segment_3> threeD_line_segments_intersected;
+//vector<line_segment_3> threeD_line_segments_intersected;
 
 
 
@@ -187,7 +187,7 @@ size_t get_intersecting_line_count(const vector_3 sphere_location,
     const MyBig dimension,
     const bool skip_saving_intersected_segments)
 {
-    threeD_line_segments_intersected.clear();
+    //threeD_line_segments_intersected.clear();
     size_t count = 0;
 
 	for (size_t i = 0; i < threeD_line_segments.size(); i++)
@@ -202,14 +202,14 @@ size_t get_intersecting_line_count(const vector_3 sphere_location,
             {
                 count++;
 
-                if (skip_saving_intersected_segments)
-                    continue;
+                //if (skip_saving_intersected_segments)
+                //    continue;
 
-                line_segment_3 ls_;
-                ls_.start = threeD_line_segments[i].start;
-                ls_.end = threeD_line_segments[i].start + threeD_line_segments[i].end * mu2;
+                //line_segment_3 ls_;
+                //ls_.start = threeD_line_segments[i].start;
+                //ls_.end = threeD_line_segments[i].start + threeD_line_segments[i].end * mu2;
 
-                threeD_line_segments_intersected.push_back(ls_);
+                //threeD_line_segments_intersected.push_back(ls_);
             }
         }
 	}

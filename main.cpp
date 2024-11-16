@@ -14,6 +14,7 @@ int main(int argc, char** argv)
 	const MyBig end_dim = 3;
 
 	const size_t dim_res = 3;
+	const size_t n = 10000000;
 
 	const MyBig dim_step_size = (end_dim - start_dim) / (dim_res - 1);
 
@@ -22,9 +23,15 @@ int main(int argc, char** argv)
 		threeD_oscillators.clear();
 		normals.clear();
 		threeD_line_segments.clear();
-		threeD_line_segments_intersected.clear();
 
-		const size_t n = 10000000;
+		cout << "Allocating memory for oscillators" << endl;
+		threeD_oscillators.resize(n);
+
+		cout << "Allocating memory for normals" << endl;
+		normals.resize(n);
+
+		cout << "Allocating memory for line segments" << endl;
+		threeD_line_segments.resize(n);
 
 		if (D <= 2)
 			D = 2.001;
@@ -40,7 +47,7 @@ int main(int argc, char** argv)
 		for (size_t i = 0; i < n; i++)
 		{
 			vector_3 r = RandomUnitVector();
-			threeD_oscillators.push_back(r);
+			threeD_oscillators[i] = r;// .push_back(r);
 
 			if (i % 1000 == 0)
 				cout << "Getting pseudorandom locations: " << i << " of " << n << endl;
@@ -74,7 +81,6 @@ int main(int argc, char** argv)
 
 			threeD_oscillators[i] = vector_3(rv.y, rv.z, rv.w);
 
-
 			if (i % 1000 == 0)
 				cout << "Getting ellipsoid locations: " << i << " of " << n << endl;
 		}
@@ -88,13 +94,13 @@ int main(int argc, char** argv)
 
 			vector_3 normal = EllipsoidNormal(collision_point, vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
 
-			normals.push_back(normal);
+			normals[i] = normal;
 
 			line_segment_3 ls;
 			ls.start = threeD_oscillators[i];
-			ls.end = threeD_oscillators[i] + normals[i] *1e30;
+			ls.end = threeD_oscillators[i] + normals[i] * 1e30;
 
-			threeD_line_segments.push_back(ls);
+			threeD_line_segments[i] = ls;
 
 			if (i % 1000 == 0)
 				cout << "Getting elipsoid normals: " << i << " of " << n << endl;
