@@ -1,12 +1,20 @@
 #ifndef main_H
 #define main_H
 
+
+
+
+
+
 #include "uv_camera.h"
 #include "custom_math.h"
 
 using custom_math::vector_3;
 using custom_math::vector_4;
 using custom_math::line_segment_3;
+
+
+
 
 
 #include <cstdlib>
@@ -44,6 +52,11 @@ using std::map;
 using std::pair;
 
 
+
+
+
+
+
 void idle_func(void);
 void init_opengl(const int &width, const int &height);
 void reshape_func(int width, int height);
@@ -52,24 +65,16 @@ void keyboard_func(unsigned char key, int x, int y);
 void mouse_func(int button, int state, int x, int y);
 void motion_func(int x, int y);
 void passive_motion_func(int x, int y);
-
 void render_string(int x, const int y, void *font, const string &text);
 void draw_objects(void);
 
 
 
+const MyBig G = 6.67430e-11;
+const MyBig c = 299792458;
+const MyBig pi = 4.0 * atan(1.0);
 
-vector<vector_3> output_points;
-map<vector_3, size_t> points_map;
 
-
-long double biggest_x;
-long double smallest_x;
-
-long double biggest_y;
-long double smallest_y;
-
-const long double G = 6.67430e-11;
 
 
 vector<vector_3> threeD_oscillators;
@@ -77,8 +82,6 @@ vector<vector_3> normals;
 vector<line_segment_3> threeD_line_segments;
 vector<line_segment_3> threeD_line_segments_intersected;
 
-const long double pi = 4.0f * atanf(1.0f);
-const long double c_meters = 1000;
 
 
 
@@ -94,16 +97,16 @@ uv_camera main_camera;
 
 GLint win_id = 0;
 GLint win_x = 800, win_y = 600;
-long double camera_w = 10;// 0.01;
+MyBig camera_w = 10;// 0.01;
 
-long double camera_fov = 45.0f;
-long double camera_x_transform = 0;
-long double camera_y_transform = 0;
-long double u_spacer = 0.01f;
-long double v_spacer = 0.5f*u_spacer;
-long double w_spacer = camera_w*0.01f;
-long double camera_near = 0.01;
-long double camera_far = 10000000.0;
+MyBig camera_fov = 45.0f;
+MyBig camera_x_transform = 0;
+MyBig camera_y_transform = 0;
+MyBig u_spacer = 0.01f;
+MyBig v_spacer = 0.5f*u_spacer;
+MyBig w_spacer = camera_w*0.01f;
+MyBig camera_near = 0.01;
+MyBig camera_far = 10000000.0;
 
 bool lmb_down = false;
 bool mmb_down = false;
@@ -117,10 +120,10 @@ int mouse_y = 0;
 
 
 // https://paulbourke.net/geometry/circlesphere/raysphere.c
-int RaySphere(vector_3 p1, vector_3 p2, vector_3 sc, long double r, long double* mu1, long double* mu2)
+int RaySphere(vector_3 p1, vector_3 p2, vector_3 sc, MyBig r, MyBig* mu1, MyBig* mu2)
 {
-    long double a, b, c;
-    long double bb4ac;
+    MyBig a, b, c;
+    MyBig bb4ac;
     vector_3 dp;
 
     dp.x = p2.x - p1.x;
@@ -153,15 +156,15 @@ int RaySphere(vector_3 p1, vector_3 p2, vector_3 sc, long double r, long double*
 vector_4 RayEllipsoid(vector_3 ro, vector_3 rd, vector_3 r)
 {
     vector_3 r2 = r * r;
-    long double a = rd.dot(rd / r2);
-    long double b = ro.dot(rd / r2);
-    long double c = ro.dot(ro / r2);
-    long double h = b * b - a * (c - 1.0);
+    MyBig a = rd.dot(rd / r2);
+    MyBig b = ro.dot(rd / r2);
+    MyBig c = ro.dot(ro / r2);
+    MyBig h = b * b - a * (c - 1.0);
 
     if (h < 0.0)
         return vector_4(-1, 0, 0, 0);
 
-    long double t = (-b - sqrt(h)) / a;
+    MyBig t = (-b - sqrt(h)) / a;
 
     vector_3 pos = ro + rd * t;
 
@@ -180,8 +183,8 @@ vector_3 EllipsoidNormal(vector_3 pos, vector_3 ra)
 
 
 size_t get_intersecting_line_count(const vector_3 sphere_location,
-    const long double sphere_radius,
-    const long double dimension,
+    const MyBig sphere_radius,
+    const MyBig dimension,
     const bool skip_saving_intersected_segments)
 {
     threeD_line_segments_intersected.clear();
@@ -193,7 +196,7 @@ size_t get_intersecting_line_count(const vector_3 sphere_location,
 
         if(dir.dot(sphere_location) > 0)
         {
-            long double mu1 = 0, mu2 = 0;
+            MyBig mu1 = 0, mu2 = 0;
 
             if (RaySphere(threeD_line_segments[i].start, threeD_line_segments[i].end, sphere_location, 1.0, &mu1, &mu2))
             {
@@ -214,20 +217,26 @@ size_t get_intersecting_line_count(const vector_3 sphere_location,
     return count;
 }
 
+#include <random>
 
+std::mt19937 generator(0);
+std::uniform_real_distribution<long double> dis(0.0, 1.0);
 
 
 vector_3 RandomUnitVector(void)
 {
-    long double z = static_cast<long double>(rand() % RAND_MAX) / static_cast<long double>(RAND_MAX) * 2 - 1;
-    long double a = static_cast<long double>(rand() % RAND_MAX) / static_cast<long double>(RAND_MAX) * 2 * pi;
-    long double r = sqrt(1.0f - z * z);
-    long double x = r * cos(a);
-    long double y = r * sin(a);
+    MyBig z = dis(generator) * 2.0 - 1.0;
+    MyBig a = dis(generator) * 2.0 * pi;
+
+    //MyBig z = static_cast<MyBig>(rand() % RAND_MAX) / static_cast<MyBig>(RAND_MAX) * 2 - 1;
+    //MyBig a = static_cast<MyBig>(rand() % RAND_MAX) / static_cast<MyBig>(RAND_MAX) * 2 * pi;
+    MyBig r = sqrt(1.0f - z * z);
+    MyBig x = r * cos(a);
+    MyBig y = r * sin(a);
     return vector_3(x, y, z).normalize();
 }
 
-vector_3 slerp(vector_3 s0, vector_3 s1, const long double t)
+vector_3 slerp(vector_3 s0, vector_3 s1, const MyBig t)
 {
     vector_3 s0_norm = s0;
     s0_norm.normalize();
@@ -235,11 +244,11 @@ vector_3 slerp(vector_3 s0, vector_3 s1, const long double t)
     vector_3 s1_norm = s1;
     s1_norm.normalize();
 
-    const long double cos_angle = s0_norm.dot(s1_norm);
-    const long double angle = acos(cos_angle);
+    const MyBig cos_angle = s0_norm.dot(s1_norm);
+    const MyBig angle = acos(cos_angle);
 
-    const long double p0_factor = sin((1 - t) * angle) / sin(angle);
-    const long double p1_factor = sin(t * angle) / sin(angle);
+    const MyBig p0_factor = sin((1 - t) * angle) / sin(angle);
+    const MyBig p1_factor = sin(t * angle) / sin(angle);
 
     return s0 * p0_factor + s1 * p1_factor;
 }

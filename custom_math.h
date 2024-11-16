@@ -3,6 +3,24 @@
 #ifndef custom_math_h
 #define custom_math_h
 
+
+#include <boost/multiprecision/cpp_bin_float.hpp>
+using namespace boost::multiprecision;
+//using cpp_bin_float_100_ = number<backends::cpp_bin_float<1024, backends::digit_base_10, void, std::int16_t, -1022, 1023>, et_off >;
+//typedef cpp_bin_float_100_ MyBig;
+//typedef long double MyBig;
+
+
+
+//typedef number<backends::cpp_bin_float<237, backends::digit_base_2, void, std::int32_t, -262142, 262143>, et_off>  cpp_bin_float_oct;
+//typedef cpp_bin_float_oct MyBig;
+
+
+
+typedef long double MyBig;
+
+
+
 #include <algorithm>
 using std::sort;
 
@@ -45,21 +63,21 @@ namespace custom_math
 	class circle_4;
 	class line_segment_4;
 
-	const long double pi = 3.14159265358979323846;
-	const long double pi_half = pi/2;
-	const long double pi_2 = 2*pi;
-	const long double epsilon = 1e-6;
+	const MyBig pi = 3.14159265358979323846;
+	const MyBig pi_half = pi/2;
+	const MyBig pi_2 = 2*pi;
+	const MyBig epsilon = 1e-6;
 
-	long double d(const long double &a, const long double &b);
-	long double d_3(const vector_3 &a, const vector_3 &b);
-	long double d_3_sq(const vector_3 &a, const vector_3 &b);
-	long double d_4(const vector_4 &a, const vector_4 &b);
+	MyBig d(const MyBig &a, const MyBig &b);
+	MyBig d_3(const vector_3 &a, const vector_3 &b);
+	MyBig d_3_sq(const vector_3 &a, const vector_3 &b);
+	MyBig d_4(const vector_4 &a, const vector_4 &b);
 };
 
 class custom_math::vector_3
 {
 public:
-	long double x, y, z;
+	MyBig x, y, z;
 
 	inline bool operator<(const vector_3& right) const
 	{
@@ -81,29 +99,29 @@ public:
 		return false;
 	}
 
-	vector_3(const long double &src_x = 0, const long double &src_y = 0, const long double &src_z = 0);
+	vector_3(const MyBig &src_x = 0, const MyBig &src_y = 0, const MyBig &src_z = 0);
 	bool operator==(const vector_3 &rhs);
 	bool operator!=(const vector_3 &rhs);
 	void zero(void);
-	void rotate_x(const long double &radians);
-	void rotate_y(const long double &radians);
-    void rotate_z(const long double &radians);
+	void rotate_x(const MyBig &radians);
+	void rotate_y(const MyBig &radians);
+    void rotate_z(const MyBig &radians);
     vector_3 operator+(const vector_3 &rhs);
 	vector_3 operator-(const vector_3 &rhs) const;
 	vector_3 operator*(const vector_3 &rhs);
 	vector_3 operator/(const vector_3& rhs);
 
-	vector_3 operator*(const long double &rhs);
-	vector_3 operator/(const long double &rhs);
+	vector_3 operator*(const MyBig &rhs);
+	vector_3 operator/(const MyBig &rhs);
 	vector_3 &operator=(const vector_3 &rhs);
 	vector_3 &operator+=(const vector_3 &rhs);
 	vector_3 &operator*=(const vector_3 &rhs);
-	vector_3 &operator*=(const long double &rhs);
+	vector_3 &operator*=(const MyBig &rhs);
 	vector_3 operator-(void);
-	long double length(void) const;
+	MyBig length(void) const;
 	vector_3 &normalize(void);
-	long double dot(const vector_3 &rhs) const;
-	long double self_dot(void) const;
+	MyBig dot(const vector_3 &rhs) const;
+	MyBig self_dot(void) const;
 	vector_3 cross(const vector_3 &rhs) const;
 };
 
@@ -111,24 +129,24 @@ public:
 class custom_math::vector_4
 {
 public:
-	long double x, y, z, w;
+	MyBig x, y, z, w;
 
-	vector_4(const long double &src_x = 0, const long double &src_y = 0, const long double &src_z = 0, const long double &src_w = 0);
+	vector_4(const MyBig &src_x = 0, const MyBig &src_y = 0, const MyBig &src_z = 0, const MyBig &src_w = 0);
 	void zero(void);
 	vector_4 operator+(const vector_4 &rhs);
 	vector_4 operator-(const vector_4 &rhs);
 	vector_4 operator*(const vector_4 &rhs);
-	vector_4 operator*(const long double &rhs);
-	vector_4 operator/(const long double &rhs);
+	vector_4 operator*(const MyBig &rhs);
+	vector_4 operator/(const MyBig &rhs);
 	vector_4 &operator=(const vector_4 &rhs);
 	vector_4 &operator+=(const vector_4 &rhs);
 	vector_4 &operator*=(const vector_4 &rhs);
-	vector_4 &operator*=(const long double &rhs);
+	vector_4 &operator*=(const MyBig &rhs);
 	vector_4 operator-(void);
-	long double length(void) const;
+	MyBig length(void) const;
 	vector_4 &normalize(void);
-	long double dot(const vector_4 &rhs) const;
-	long double self_dot(void) const;
+	MyBig dot(const vector_4 &rhs) const;
+	MyBig self_dot(void) const;
 };
 
 
@@ -137,7 +155,7 @@ class custom_math::line_segment_3
 public:
 	vector_3 start, end;
 
-	long double length(void)
+	MyBig length(void)
 	{
 		return d_3(start, end);
 	}
@@ -153,7 +171,7 @@ class custom_math::line_segment_4
 public:
 	vector_4 start, end;
 
-	long double length(void)
+	MyBig length(void)
 	{
 		return d_4(start, end);
 	}
@@ -170,18 +188,18 @@ class custom_math::circle_3
 public:
 	vector_3 U, V;
 
-	void get_vertices(size_t num_steps, long double radius, vector<vector_3> &vertices)
+	void get_vertices(size_t num_steps, MyBig radius, vector<vector_3> &vertices)
 	{
 		vertices.clear();
 
 		for(size_t step = 0; step < num_steps; step++)
 		{
-			const long double circumference_arc = 2*pi/static_cast<long double>(num_steps);
-			long double t = step*circumference_arc;
+			const MyBig circumference_arc = 2*pi/static_cast<MyBig>(num_steps);
+			MyBig t = step*circumference_arc;
 			static vector_3 v;
 			v = U*cos(t) + V*sin(t);
 
-			long double vlen = v.length();
+			MyBig vlen = v.length();
 
 			if(vlen > 1.0 + epsilon || vlen < 1.0 - epsilon)
 				cout << "circle_3 parameterization error: " << vlen << endl;
@@ -246,7 +264,7 @@ public:
 		V.normalize();
 
 		// Handle special case where the vertices are antipodal.
-		long double dot = U.dot(V);
+		MyBig dot = U.dot(V);
 
 		if(dot < -1.0 + epsilon)
 		{
@@ -272,18 +290,18 @@ class custom_math::circle_4
 public:
 	vector_4 U, V;
 
-	void get_vertices(size_t num_steps, long double radius, vector<vector_4> &vertices)
+	void get_vertices(size_t num_steps, MyBig radius, vector<vector_4> &vertices)
 	{
 		vertices.clear();
 
 		for(size_t step = 0; step < num_steps; step++)
 		{
-			const long double circumference_arc = 2*pi/static_cast<long double>(num_steps);
-			long double t = step*circumference_arc;
+			const MyBig circumference_arc = 2*pi/static_cast<MyBig>(num_steps);
+			MyBig t = step*circumference_arc;
 			static vector_4 v;
 			v = U*cos(t) + V*sin(t);
 
-			long double vlen = v.length();
+			MyBig vlen = v.length();
 
 			if(vlen > 1.0 + epsilon || vlen < 1.0 - epsilon)
 				cout << "circle_4 parameterization error: " << vlen << endl;
@@ -348,7 +366,7 @@ public:
 		V.normalize();
 
 		// Handle special case where the vertices are antipodal.
-		long double dot = U.dot(V);
+		MyBig dot = U.dot(V);
 
 		if(dot < -1.0 + epsilon)
 		{
