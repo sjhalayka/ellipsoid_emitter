@@ -57,6 +57,8 @@ void uv_camera::Set(const MyBig u_rad, const MyBig v_rad, const MyBig w_metres, 
 
 void uv_camera::Transform(void)
 {
+#ifdef USE_OPENGL
+
 	Reset();
 	Rotate();
 	Translate();
@@ -72,7 +74,8 @@ void uv_camera::Transform(void)
 	gluLookAt(
 		eye.x, eye.y, eye.z, // Eye position.
 		eye.x + look_at.x, eye.y + look_at.y, eye.z + look_at.z, // Look at position (not direction).
-		up.x, up.y, up.z); // Up direction vector.
+			up.x, up.y, up.z); // Up direction vector.
+#endif
 }
 
 void uv_camera::Set(void)

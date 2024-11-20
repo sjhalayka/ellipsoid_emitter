@@ -42,9 +42,11 @@ using std::cout;
 using std::endl;
 
 #include <cmath>
+
+#ifdef USE_OPENGL
 #include <cstdlib>
 #include <GL/glut.h>       //GLUT Library
-
+#endif
 
 namespace custom_math
 {

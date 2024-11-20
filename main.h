@@ -2,6 +2,8 @@
 #define main_H
 
 
+//#define USE_OPENGL
+
 
 
 
@@ -15,10 +17,13 @@ using custom_math::line_segment_3;
 
 
 
-
+#ifdef USE_OPENGL
 
 #include <cstdlib>
 #include <GL/glut.h>       //GLUT Library
+
+#endif
+
 
 #include <iostream>
 using std::cout;
@@ -56,7 +61,7 @@ using std::pair;
 
 
 
-
+#ifdef USE_OPENGL
 void idle_func(void);
 void init_opengl(const int &width, const int &height);
 void reshape_func(int width, int height);
@@ -67,7 +72,7 @@ void motion_func(int x, int y);
 void passive_motion_func(int x, int y);
 void render_string(int x, const int y, void *font, const string &text);
 void draw_objects(void);
-
+#endif
 
 
 const MyBig G = 6.67430e-11;
@@ -92,6 +97,8 @@ custom_math::vector_3 control_list_colour(1.0f, 1.0f, 1.0f);
 bool draw_axis = true;
 bool draw_control_list = true;
 
+
+#ifdef USE_OPENGL
 uv_camera main_camera;
 
 
@@ -114,7 +121,7 @@ bool rmb_down = false;
 int mouse_x = 0;
 int mouse_y = 0;
 
-
+#endif
 
 
 
@@ -139,13 +146,13 @@ int RaySphere(vector_3 p1, vector_3 p2, vector_3 sc, MyBig r, MyBig* mu1, MyBig*
     if (fabs(a) < 1e-5 || bb4ac < 0) {
         *mu1 = 0;
         *mu2 = 0;
-        return(FALSE);
+        return(false);
     }
 
     *mu1 = (-b + sqrt(bb4ac)) / (2 * a);
     *mu2 = (-b - sqrt(bb4ac)) / (2 * a);
 
-    return(TRUE);
+    return(true);
 }
 
 

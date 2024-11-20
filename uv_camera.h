@@ -1,8 +1,11 @@
 #ifndef uv_camera_h
 #define uv_camera_h
 
+#ifdef USE_OPENGL
 #include <cstdlib>
 #include <GL/glut.h>       //GLUT Library
+#endif
+
 
 #include "custom_math.h"
 

@@ -14,7 +14,9 @@ int main(int argc, char** argv)
 	const MyBig end_dim = 3;
 
 	const size_t dim_res = 3;
-	const size_t n = 1000000;
+	const size_t n = 10000000;
+
+	const size_t output_mod = 10000;
 
 	const MyBig dim_step_size = (end_dim - start_dim) / (dim_res - 1);
 
@@ -47,9 +49,9 @@ int main(int argc, char** argv)
 		for (size_t i = 0; i < n; i++)
 		{
 			vector_3 r = RandomUnitVector();
-			threeD_oscillators[i] = r;// .push_back(r);
+			threeD_oscillators[i] = r;
 
-			if (i % 1000 == 0)
+			if (i % output_mod == 0)
 				cout << "Getting pseudorandom locations: " << i << " of " << n << endl;
 
 		}
@@ -68,7 +70,7 @@ int main(int argc, char** argv)
 
 			threeD_oscillators[i] = s;
 
-			if (i % 1000 == 0)
+			if (i % output_mod == 0)
 				cout << "SLERPing: " << i << " of " << n << endl;
 		}
 
@@ -81,7 +83,7 @@ int main(int argc, char** argv)
 
 			threeD_oscillators[i] = vector_3(rv.y, rv.z, rv.w);
 
-			if (i % 1000 == 0)
+			if (i % output_mod == 0)
 				cout << "Getting ellipsoid locations: " << i << " of " << n << endl;
 		}
 
@@ -102,7 +104,7 @@ int main(int argc, char** argv)
 
 			threeD_line_segments[i] = ls;
 
-			if (i % 1000 == 0)
+			if (i % output_mod == 0)
 				cout << "Getting elipsoid normals: " << i << " of " << n << endl;
 		}
 
@@ -149,7 +151,7 @@ int main(int argc, char** argv)
 
 
 
-
+#ifdef USE_OPENGL
 
 	glutInit(&argc, argv);
 	init_opengl(win_x, win_y);
@@ -164,9 +166,17 @@ int main(int argc, char** argv)
 	glutMainLoop();
 	glutDestroyWindow(win_id);
 
+
 	return 0;
+
+#endif
+
 }
 
+
+
+
+#ifdef USE_OPENGL
 
 void idle_func(void)
 {
@@ -535,6 +545,4 @@ void passive_motion_func(int x, int y)
 	mouse_y = y;
 }
 
-
-
-
+#endif
