@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 	const MyBig end_dim = 3;
 
 	const size_t dim_res = 3;
-	const size_t n = 10000000;
+	const size_t n = 1000000;
 
 	const size_t output_mod = 10000;
 
@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 			D = 3;
 
 		const MyBig disk_like = 3 - D;
-		MyBig falloff_exponent = D;
+		const MyBig falloff_exponent = D;
 		const MyBig fractionality = 1.0 - 2.0 * (0.5 - fmod(D, 1.0));
 
 
@@ -118,7 +118,7 @@ int main(int argc, char** argv)
 		const MyBig start_distance = 10;
 		const MyBig end_distance = 100;
 
-		const size_t distance_res = 10000;
+		const size_t distance_res = 1000;
 
 		const MyBig distance_step_size = (end_distance - start_distance) / (distance_res - 1);
 
