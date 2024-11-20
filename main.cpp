@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 	const MyBig end_dim = 3;
 
 	const size_t dim_res = 3;
-	const size_t n = 1000000;
+	const size_t n = 1000000000;
 
 	const size_t output_mod = 10000;
 
@@ -118,7 +118,7 @@ int main(int argc, char** argv)
 		const MyBig start_distance = 10;
 		const MyBig end_distance = 100;
 
-		const size_t distance_res = 1000;
+		const size_t distance_res = 10000;
 
 		const MyBig distance_step_size = (end_distance - start_distance) / (distance_res - 1);
 
