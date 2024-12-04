@@ -89,7 +89,7 @@ const MyBig pi = 4.0 * atan(1.0);
 vector<vector_3> threeD_oscillators;
 vector<vector_3> normals;
 vector<line_segment_3> threeD_line_segments;
-//vector<line_segment_3> threeD_line_segments_intersected;
+vector<line_segment_3> threeD_line_segments_intersected;
 
 
 
@@ -190,17 +190,93 @@ vector_3 EllipsoidNormal(vector_3 pos, vector_3 ra)
 	return -normal;
 }
 
+//
+//void thread_func(
+//	size_t& count,
+//	const size_t first_index,
+//	const size_t last_index,
+//	vector_3 sphere_location)
+//{
+//
+//	count = 0;
+//
+//	for (size_t i = first_index; i <= last_index /*threeD_line_segments.size()*/; i++)
+//	{
+//		const vector_3 dir = (threeD_line_segments[i].end - threeD_line_segments[i].start).normalize();
+//
+//		if (1)//dir.dot(sphere_location) > 0)
+//		{
+//			MyBig mu1 = 0, mu2 = 0;
+//
+//			if (RaySphere(threeD_line_segments[i].start, threeD_line_segments[i].end, sphere_location, 1.0, &mu1, &mu2))
+//			{
+//				count++;
+//
+//				//if (skip_saving_intersected_segments)
+//				//    continue;
+//
+//				line_segment_3 ls_;
+//				ls_.start = threeD_line_segments[i].start;
+//				ls_.end = threeD_line_segments[i].start + threeD_line_segments[i].end * mu2;
+//
+//				threeD_line_segments_intersected.push_back(ls_);
+//			}
+//		}
+//	}
+//}
+//
+//size_t get_intersecting_line_count(const vector_3 sphere_location,
+//	const MyBig sphere_radius,
+//	const MyBig dimension)
+//{
+//	vector<thread> threads;
+//	int num_cpu_threads = 1;// std::thread::hardware_concurrency();
+//
+//	vector<size_t> counts(num_cpu_threads, 0);
+//
+//	const size_t div = threeD_line_segments.size() / num_cpu_threads;
+//	const size_t modulus = threeD_line_segments.size() % num_cpu_threads;
+//
+//	vector<size_t> first_index(num_cpu_threads, 0);
+//	vector<size_t> last_index(num_cpu_threads, 0);
+//
+//	first_index[0] = 0;
+//	last_index[0] = div - 1;
+//
+//	for (size_t i = 1; i < (num_cpu_threads - 1); i++)
+//	{
+//		first_index[i] = first_index[i - 1] + div;
+//		last_index[i] = last_index[i - 1] + div;
+//	}
+//
+//	first_index[num_cpu_threads - 1] = first_index[num_cpu_threads - 2] + div;
+//	last_index[num_cpu_threads - 1]  = threeD_line_segments.size() - 1;
+//
+//	for (int i = 0; i < num_cpu_threads; i++)
+//		threads.push_back(thread(thread_func, std::ref(counts[i]), first_index[i], last_index[i], sphere_location));
+//
+//	for (int i = 0; i < num_cpu_threads; i++)
+//		threads[i].join();
+//
+//	size_t count = 0;
+//
+//	for (size_t i = 0; i < counts.size(); i++)
+//		count += counts[i];
+//
+//	return count;
+//}
 
-void thread_func(
-	size_t& count,
-	const size_t first_index,
-	const size_t last_index,
-	vector_3 sphere_location)
+
+
+size_t get_intersecting_line_count(const vector_3 sphere_location,
+	const MyBig sphere_radius,
+	const MyBig dimension,
+	const bool skip_saving_intersected_segments)
 {
+	threeD_line_segments_intersected.clear();
+	size_t count = 0;
 
-	count = 0;
-
-	for (size_t i = first_index; i <= last_index /*threeD_line_segments.size()*/; i++)
+	for (size_t i = 0; i < threeD_line_segments.size(); i++)
 	{
 		const vector_3 dir = (threeD_line_segments[i].end - threeD_line_segments[i].start).normalize();
 
@@ -208,61 +284,29 @@ void thread_func(
 		{
 			MyBig mu1 = 0, mu2 = 0;
 
-			if (RaySphere(threeD_line_segments[i].start, threeD_line_segments[i].end, sphere_location, 1.0, &mu1, &mu2))
+			if (RaySphere(threeD_line_segments[i].start, threeD_line_segments[i].end, sphere_location, sphere_radius, &mu1, &mu2))
 			{
+				if (mu1 < 0 || mu2 < 0)
+				{
+				//cout << "skipping" << endl;
+					continue;
+				}	
+
 				count++;
 
-				//if (skip_saving_intersected_segments)
-				//    continue;
 
-				//line_segment_3 ls_;
-				//ls_.start = threeD_line_segments[i].start;
-				//ls_.end = threeD_line_segments[i].start + threeD_line_segments[i].end * mu2;
 
-				//threeD_line_segments_intersected.push_back(ls_);
+				if (skip_saving_intersected_segments)
+				    continue;
+
+				line_segment_3 ls_;
+				ls_.start = threeD_line_segments[i].start;
+				ls_.end = threeD_line_segments[i].start + threeD_line_segments[i].end * mu1;
+
+				threeD_line_segments_intersected.push_back(ls_);
 			}
 		}
 	}
-}
-
-size_t get_intersecting_line_count(const vector_3 sphere_location,
-	const MyBig sphere_radius,
-	const MyBig dimension,
-	const bool skip_saving_intersected_segments)
-{
-	vector<thread> threads;
-	int num_cpu_threads = std::thread::hardware_concurrency();
-
-	vector<size_t> counts(num_cpu_threads, 0);
-
-	const size_t div = threeD_line_segments.size() / num_cpu_threads;
-	const size_t modulus = threeD_line_segments.size() % num_cpu_threads;
-
-	vector<size_t> first_index(num_cpu_threads, 0);
-	vector<size_t> last_index(num_cpu_threads, 0);
-
-	first_index[0] = 0;
-	last_index[0] = div - 1;
-
-	for (size_t i = 1; i < (num_cpu_threads - 1); i++)
-	{
-		first_index[i] = first_index[i - 1] + div;
-		last_index[i] = last_index[i - 1] + div;
-	}
-
-	first_index[num_cpu_threads - 1] = first_index[num_cpu_threads - 2] + div;
-	last_index[num_cpu_threads - 1]  = threeD_line_segments.size() - 1;
-
-	for (int i = 0; i < num_cpu_threads; i++)
-		threads.push_back(thread(thread_func, std::ref(counts[i]), first_index[i], last_index[i], sphere_location));
-
-	for (int i = 0; i < num_cpu_threads; i++)
-		threads[i].join();
-
-	size_t count = 0;
-
-	for (size_t i = 0; i < counts.size(); i++)
-		count += counts[i];
 
 	return count;
 }
