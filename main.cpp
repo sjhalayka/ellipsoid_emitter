@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 	const MyBig end_dim = 3;
 
 	const size_t dim_res = 2;
-	const size_t n = 1000;
+	const size_t n = 10000000;
 
 	const size_t output_mod = 10000;
 
@@ -97,12 +97,10 @@ int main(int argc, char** argv)
 
 			vector_3 collision_point = vector_3(rv.y, rv.z, rv.w);
 
-			vector_3 normal = EllipsoidNormal(collision_point, vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
+			vector_3 normal = RandomUnitVector();// EllipsoidNormal(collision_point, vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
 	
-			//normal = RandomUnitVector();
-
-			//if (threeD_oscillators[i].dot(normal) < 0)
-			//	normal = -normal;
+			if (threeD_oscillators[i].dot(normal) < 0)
+				normal = -normal;
 
 			normals[i] = normal;
 
@@ -156,8 +154,10 @@ int main(int argc, char** argv)
 
 			const MyBig emitter_mass = c2 * 1.0 / (2.0 * G);
 
+			const MyBig time_dilation = sqrt(1.0 - 1.0 / receiver_pos.x);
+
 			const MyBig newton_strength =
-				G * emitter_mass / pow(receiver_pos.x, 2.0);
+				G * emitter_mass / (/*time_dilation * */ pow(receiver_pos.x, 2.0));
 
 			//cout << gradient_strength / gradient_strength_ << endl;
 
