@@ -86,9 +86,9 @@ const MyBig c3 = c * c * c;
 const MyBig c4 = c * c * c * c;
 
 const MyBig pi = 4.0 * atan(1.0);
-
-
-
+const MyBig h = 6.62607015e-34; // Planck’s constant
+const MyBig hbar = h / (2.0 * pi);
+const MyBig k = 1.380649e-23;
 
 vector<vector_3> threeD_oscillators;
 vector<vector_3> normals;

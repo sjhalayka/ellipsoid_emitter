@@ -97,10 +97,13 @@ int main(int argc, char** argv)
 
 			vector_3 collision_point = vector_3(rv.y, rv.z, rv.w);
 
-			vector_3 normal = RandomUnitVector();// EllipsoidNormal(collision_point, vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
-	
-			if (threeD_oscillators[i].dot(normal) < 0)
-				normal = -normal;
+			vector_3 normal = EllipsoidNormal(collision_point, vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
+			
+			//vector_3 normal = RandomUnitVector();
+			//if (threeD_oscillators[i].dot(normal) < 0)
+			//	normal = -normal;
+
+
 
 			normals[i] = normal;
 
@@ -122,10 +125,10 @@ int main(int argc, char** argv)
 
 		const MyBig receiver_radius = 1.0;
 
-		const MyBig start_distance = 1.0 + receiver_radius; // kissing spheres
-		const MyBig end_distance = 100;
+		const MyBig start_distance = 1 + receiver_radius; // kissing spheres
+		const MyBig end_distance = 100.0;
 
-		const size_t distance_res = 100;
+		const size_t distance_res = 1000;
 
 		const MyBig distance_step_size = (end_distance - start_distance) / (distance_res - 1);
 
@@ -133,7 +136,7 @@ int main(int argc, char** argv)
 		{
 			const vector_3 receiver_pos(r, 0, 0);
 
-			const MyBig epsilon = 0.1;
+			const MyBig epsilon = 1.0;
 
 			vector_3 receiver_pos_plus = receiver_pos;
 			receiver_pos_plus.x += epsilon;
@@ -156,14 +159,42 @@ int main(int argc, char** argv)
 
 			const MyBig time_dilation = sqrt(1.0 - 1.0 / receiver_pos.x);
 
-			const MyBig newton_strength =
-				G * emitter_mass / (/*time_dilation * */ pow(receiver_pos.x, 2.0));
+			const MyBig newton_strength = gradient_strength * receiver_pos.x * c * hbar * log(2.0) / (k * 2.0 * pi * emitter_mass);
+
+
+
+
+			cout << gradient_strength / gradient_strength_ << endl;
+
+			const MyBig newton_strength_ =
+				n *
+				c *
+				hbar *
+				log(2.0)
+				/
+				(k *
+					pow(receiver_pos.x, 2.0)
+					*
+					emitter_mass *
+					4.0 *
+					pi);
+
+			const MyBig newton_strength__ = G * c2 * emitter_mass / (pow(receiver_pos.x, 2.0));
+
+
+
+
+			cout << newton_strength_ / (newton_strength) << endl;
+
+
+		//	const MyBig newton_strength =
+		//		G * emitter_mass / (/*time_dilation * */ pow(receiver_pos.x, 2.0));
 
 			//cout << gradient_strength / gradient_strength_ << endl;
 
-			cout << "D: " << D << " r: " << r << " " << newton_strength << endl;
+			cout << "D: " << D << " r: " << r << " " << gradient_strength << endl;
 
-			out_file << r << " " << newton_strength << endl;
+			out_file << r << " " << gradient_strength << endl;
 		}
 
 		out_file.close();
