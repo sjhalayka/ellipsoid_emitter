@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 	const MyBig end_dim = 3;
 
 	const size_t dim_res = 2;
-	const size_t n = 10000000;
+	const size_t n = 1000;
 
 	const size_t output_mod = 10000;
 
@@ -22,7 +22,7 @@ int main(int argc, char** argv)
 
 	//for (MyBig D = start_dim; D <= end_dim; D += dim_step_size)
 	{
-		MyBig D = 3;
+		const MyBig D = 3;
 
 		threeD_oscillators.clear();
 		normals.clear();
@@ -38,10 +38,10 @@ int main(int argc, char** argv)
 		cout << "Allocating memory for line segments" << endl;
 		threeD_line_segments.resize(n);
 
-		if (D <= 2)
-			D = 2.001;
-		else if (D > 3)
-			D = 3;
+		//if (D <= 2)
+		//	D = 2.001;
+		//else if (D > 3)
+		//	D = 3;
 
 		const MyBig disk_like = 3 - D;
 		//const MyBig falloff_exponent = D;
@@ -125,7 +125,7 @@ int main(int argc, char** argv)
 		const MyBig receiver_radius = 1.0;
 
 		const MyBig start_distance = 1.0 + receiver_radius; // kissing spheres
-		const MyBig end_distance = 10;
+		const MyBig end_distance = 100;
 
 		const size_t distance_res = 100;
 
@@ -147,13 +147,23 @@ int main(int argc, char** argv)
 			vector_3 gradient;
 			gradient.x = static_cast<MyBig>(collision_count_plus - collision_count) / epsilon;			
 
-			const long double gradient_strength =
+			const MyBig gradient_strength =
 				-gradient.x
 				/ (receiver_radius * receiver_radius);
 
-			cout << "D: " << D << " r: " << r << " " << gradient_strength << endl;
+			const MyBig gradient_strength_ =
+				n / (2 * pow(receiver_pos.x, 3.0));
 
-			out_file << r << " " << gradient_strength << endl;
+			const MyBig emitter_mass = c2 * 1.0 / (2.0 * G);
+
+			const MyBig newton_strength =
+				G * emitter_mass / pow(receiver_pos.x, 2.0);
+
+			//cout << gradient_strength / gradient_strength_ << endl;
+
+			cout << "D: " << D << " r: " << r << " " << newton_strength << endl;
+
+			out_file << r << " " << newton_strength << endl;
 		}
 
 		out_file.close();
@@ -289,24 +299,24 @@ void draw_objects(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
-	//glBegin(GL_LINES);
+	glBegin(GL_LINES);
 
-	//glColor4f(1.0f, 0.5f, 0, 0.1f);
+	glColor4f(1.0f, 0.5f, 0, 0.2f);
 
-	//for (size_t i = 0; i < threeD_oscillators.size(); i++)
-	//{
-	//	//if (threeD_line_segments[i].start.z > 0 || threeD_line_segments[i].end.z > 0)
-	//	//	continue;
+	for (size_t i = 0; i < threeD_oscillators.size(); i++)
+	{
+		//if (threeD_line_segments[i].start.z > 0 || threeD_line_segments[i].end.z > 0)
+		//	continue;
 
-	//	if (threeD_oscillators[i].z > 0)
-	//		continue;
+		//if (threeD_oscillators[i].z > 0)
+		//	continue;
 
 
-	//	glVertex3d(threeD_oscillators[i].x, threeD_oscillators[i].y, threeD_oscillators[i].z);
-	//	glVertex3d(threeD_oscillators[i].x + normals[i].x, threeD_oscillators[i].y + normals[i].y, threeD_oscillators[i].z + normals[i].z);
-	//}
+		glVertex3d(threeD_oscillators[i].x, threeD_oscillators[i].y, threeD_oscillators[i].z);
+		glVertex3d(threeD_oscillators[i].x + normals[i].x, threeD_oscillators[i].y + normals[i].y, threeD_oscillators[i].z + normals[i].z);
+	}
 
-	//glEnd();
+	glEnd();
 
 
 	//glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -337,19 +347,19 @@ void draw_objects(void)
 
 
 
-	glBegin(GL_LINES);
+	//glBegin(GL_LINES);
 
-	glColor4f(0, 0, 1, 1.0f);
+	//glColor4f(0, 0, 1, 1.0f);
 
-	cout << threeD_line_segments_intersected.size() << endl;
+	////cout << threeD_line_segments_intersected.size() << endl;
 
-	for (size_t i = 0; i < threeD_line_segments_intersected.size(); i++)
-	{
-		glVertex3d(threeD_line_segments_intersected[i].start.x, threeD_line_segments_intersected[i].start.y, threeD_line_segments_intersected[i].start.z);
-		glVertex3d(threeD_line_segments_intersected[i].end.x, threeD_line_segments_intersected[i].end.y, threeD_line_segments_intersected[i].end.z);
-	}
+	//for (size_t i = 0; i < threeD_line_segments_intersected.size(); i++)
+	//{
+	//	glVertex3d(threeD_line_segments_intersected[i].start.x, threeD_line_segments_intersected[i].start.y, threeD_line_segments_intersected[i].start.z);
+	//	glVertex3d(threeD_line_segments_intersected[i].end.x, threeD_line_segments_intersected[i].end.y, threeD_line_segments_intersected[i].end.z);
+	//}
 
-	glEnd();
+	//glEnd();
 
 
 

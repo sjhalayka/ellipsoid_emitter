@@ -81,6 +81,10 @@ void draw_objects(void);
 
 const MyBig G = 6.67430e-11;
 const MyBig c = 299792458;
+const MyBig c2 = c * c;
+const MyBig c3 = c * c * c;
+const MyBig c4 = c * c * c * c;
+
 const MyBig pi = 4.0 * atan(1.0);
 
 
@@ -288,7 +292,7 @@ size_t get_intersecting_line_count(const vector_3 sphere_location,
 			{
 				if (mu1 < 0 || mu2 < 0)
 				{
-				//cout << "skipping" << endl;
+					cout << mu1 << "  " << mu2 << endl;
 					continue;
 				}	
 
