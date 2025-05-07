@@ -7,10 +7,10 @@ vector_3 max_location(1 + 20, 1, 1);
 
 
 
-bool intersect_AABB(vector_3 ray_origin, vector_3 ray_dir)
+bool intersect_AABB(vector_3 ray_origin, vector_3 ray_dir, MyBig &tmin, MyBig &tmax)
 {
-	MyBig tmin = (min_location.x - ray_origin.x) / ray_dir.x;
-	MyBig tmax = (max_location.x - ray_origin.x) / ray_dir.x;
+	 tmin = (min_location.x - ray_origin.x) / ray_dir.x;
+	 tmax = (max_location.x - ray_origin.x) / ray_dir.x;
 
 	if (tmin > tmax) swap(tmin, tmax);
 
@@ -104,9 +104,21 @@ int main(int argc, char** argv)
 		vector_3 ray_origin = threeD_oscillators[i];
 		vector_3 ray_dir = normals[i];
 
-		if(intersect_AABB(ray_origin, ray_dir))
+		MyBig tmin = 0, tmax = 0;
+
+		if(intersect_AABB(ray_origin, ray_dir, tmin, tmax))
 		{
-			threeD_line_segments_intersected.push_back(threeD_line_segments[i]);
+			if (tmin < 0 || tmax < 0)
+				continue;
+
+			vector_3 ray_hit_start = ray_origin + ray_dir * tmin;
+			vector_3 ray_hit_end = ray_origin + ray_dir * tmax;
+
+			line_segment_3 ls;
+			ls.start = ray_hit_start;
+			ls.end = ray_hit_end;
+
+			threeD_line_segments_intersected.push_back(ls);
 		}
 
 	}
