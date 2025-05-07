@@ -50,9 +50,9 @@ bool intersect_AABB(vector_3 ray_origin, vector_3 ray_dir, MyBig &tmin, MyBig &t
 
 int main(int argc, char** argv)
 {
-	const size_t n = 1000000;
+	const size_t n = 10000000;
 
-	MyBig D = 2.15;
+	MyBig D = 2.01;
 
 	threeD_oscillators.clear();
 	normals.clear();
@@ -62,7 +62,6 @@ int main(int argc, char** argv)
 	threeD_oscillators.resize(n);
 	normals.resize(n);
 	threeD_line_segments.resize(n);
-
 
 	if (D <= 2)
 		D = 2.001;
@@ -99,6 +98,8 @@ int main(int argc, char** argv)
 		threeD_line_segments[i] = ls;
 	}
 
+	float density = 0;
+
 	for (size_t i = 0; i < threeD_line_segments.size(); i++)
 	{
 		vector_3 ray_origin = threeD_oscillators[i];
@@ -108,22 +109,28 @@ int main(int argc, char** argv)
 
 		if(intersect_AABB(ray_origin, ray_dir, tmin, tmax))
 		{
+			// If pointing in the wrong direction
 			if (tmin < 0 || tmax < 0)
 				continue;
 
 			vector_3 ray_hit_start = ray_origin + ray_dir * tmin;
 			vector_3 ray_hit_end = ray_origin + ray_dir * tmax;
 
+			float l = (ray_hit_end - ray_hit_start).length();
+
 			line_segment_3 ls;
 			ls.start = ray_hit_start;
 			ls.end = ray_hit_end;
 
 			threeD_line_segments_intersected.push_back(ls);
+			density += l;
 		}
 
 	}
 
+	density /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
 
+	cout << density << endl;
 
 
 
