@@ -2,6 +2,48 @@
 
 
 
+vector_3 min_location(-1 + 20, -1, -1);
+vector_3 max_location(1 + 20, 1, 1);
+
+
+
+bool intersect_AABB(vector_3 ray_origin, vector_3 ray_dir)
+{
+	MyBig tmin = (min_location.x - ray_origin.x) / ray_dir.x;
+	MyBig tmax = (max_location.x - ray_origin.x) / ray_dir.x;
+
+	if (tmin > tmax) swap(tmin, tmax);
+
+	MyBig tymin = (min_location.y - ray_origin.y) / ray_dir.y;
+	MyBig tymax = (max_location.y - ray_origin.y) / ray_dir.y;
+
+	if (tymin > tymax) swap(tymin, tymax);
+
+	if ((tmin > tymax) || (tymin > tmax))
+		return false;
+
+	if (tymin > tmin)
+		tmin = tymin;
+
+	if (tymax < tmax)
+		tmax = tymax;
+
+	MyBig tzmin = (min_location.z - ray_origin.z) / ray_dir.z;
+	MyBig tzmax = (max_location.z - ray_origin.z) / ray_dir.z;
+
+	if (tzmin > tzmax) swap(tzmin, tzmax);
+
+	if ((tmin > tzmax) || (tzmin > tmax))
+		return false;
+
+	if (tzmin > tmin)
+		tmin = tzmin;
+
+	if (tzmax < tmax)
+		tmax = tzmax;
+
+	return true;
+}
 
 
 
@@ -10,31 +52,26 @@ int main(int argc, char** argv)
 {
 	const size_t n = 1000000;
 
-
-	const MyBig D = 2.25;
+	MyBig D = 2.15;
 
 	threeD_oscillators.clear();
 	normals.clear();
 	threeD_line_segments.clear();
+	threeD_line_segments_intersected.clear();
 
-	cout << "Allocating memory for oscillators" << endl;
 	threeD_oscillators.resize(n);
-
-	cout << "Allocating memory for normals" << endl;
 	normals.resize(n);
-
-	cout << "Allocating memory for line segments" << endl;
 	threeD_line_segments.resize(n);
 
-	//if (D <= 2)
-	//	D = 2.001;
-	//else if (D > 3)
-	//	D = 3;
+
+	if (D <= 2)
+		D = 2.001;
+	else if (D > 3)
+		D = 3;
 
 	const MyBig disk_like = 3 - D;
 	//const MyBig falloff_exponent = D;
 	//const MyBig fractionality = 1.0 - 2.0 * (0.5 - fmod(D, 1.0));
-
 
 	// Start with pseudorandom oscillator locations
 	for (size_t i = 0; i < n; i++)
@@ -62,8 +99,17 @@ int main(int argc, char** argv)
 		threeD_line_segments[i] = ls;
 	}
 
+	for (size_t i = 0; i < threeD_line_segments.size(); i++)
+	{
+		vector_3 ray_origin = threeD_oscillators[i];
+		vector_3 ray_dir = normals[i];
 
+		if(intersect_AABB(ray_origin, ray_dir))
+		{
+			threeD_line_segments_intersected.push_back(threeD_line_segments[i]);
+		}
 
+	}
 
 
 
@@ -195,24 +241,48 @@ void draw_objects(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
-	glBegin(GL_LINES);
+	//glBegin(GL_LINES);
 
-	glColor4f(1.0f, 0.5f, 0, 0.2f);
+	//glColor4f(1.0f, 0.5f, 0, 0.2f);
 
-	for (size_t i = 0; i < threeD_line_segments.size(); i++)
-	{
-		//if (threeD_line_segments[i].start.z > 0 || threeD_line_segments[i].end.z > 0)
-		//	continue;
+	//for (size_t i = 0; i < threeD_line_segments.size(); i++)
+	//{
+	//	//if (threeD_line_segments[i].start.z > 0 || threeD_line_segments[i].end.z > 0)
+	//	//	continue;
 
-		//if (threeD_oscillators[i].z > 0)
-		//	continue;
+	//	//if (threeD_oscillators[i].z > 0)
+	//	//	continue;
 
 
-		glVertex3d(threeD_line_segments[i].start.x, threeD_line_segments[i].start.y, threeD_line_segments[i].start.z);
-		glVertex3d(threeD_line_segments[i].end.x, threeD_line_segments[i].end.y, threeD_line_segments[i].end.z);
-	}
+	//	glVertex3d(threeD_line_segments[i].start.x, threeD_line_segments[i].start.y, threeD_line_segments[i].start.z);
+	//	glVertex3d(threeD_line_segments[i].end.x, threeD_line_segments[i].end.y, threeD_line_segments[i].end.z);
+	//}
 
-	glEnd();
+	//glEnd();
+
+
+
+
+	//glBegin(GL_LINES);
+
+	//glColor4f(1.0f, 0.5f, 0, 0.2f);
+
+	//for (size_t i = 0; i < threeD_line_segments_intersected.size(); i++)
+	//{
+	//	//if (threeD_line_segments[i].start.z > 0 || threeD_line_segments[i].end.z > 0)
+	//	//	continue;
+
+	//	//if (threeD_oscillators[i].z > 0)
+	//	//	continue;
+
+
+	//	glVertex3d(threeD_line_segments_intersected[i].start.x, threeD_line_segments_intersected[i].start.y, threeD_line_segments_intersected[i].start.z);
+	//	glVertex3d(threeD_line_segments_intersected[i].end.x, threeD_line_segments_intersected[i].end.y, threeD_line_segments_intersected[i].end.z);
+	//}
+
+
+
+//	glEnd();
 
 
 	//glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -245,7 +315,7 @@ void draw_objects(void)
 
 	glBegin(GL_LINES);
 
-	glColor4f(0, 0, 1, 1.0f);
+	glColor4f(1, 0.5, 0.0, 0.2f);
 
 	//cout << threeD_line_segments_intersected.size() << endl;
 

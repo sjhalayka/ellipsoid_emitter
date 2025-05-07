@@ -62,6 +62,8 @@ using std::mutex;
 #include <thread>
 using std::thread;
 
+#include <utility>
+using std::swap;
 
 
 
