@@ -52,7 +52,7 @@ int main(int argc, char** argv)
 {
 	const size_t n = 10000000;
 
-	MyBig D = 2.01;
+	MyBig D = 2.001;
 
 	threeD_oscillators.clear();
 	normals.clear();
@@ -72,20 +72,11 @@ int main(int argc, char** argv)
 	//const MyBig falloff_exponent = D;
 	//const MyBig fractionality = 1.0 - 2.0 * (0.5 - fmod(D, 1.0));
 
-	// Start with pseudorandom oscillator locations
+	// Get [posinormal on prolate ellipsoid
 	for (size_t i = 0; i < n; i++)
 	{
-		vector_3 r = RandomUnitVector();
-		threeD_oscillators[i] = r * 0.01;
+		threeD_oscillators[i] = RandomUnitVector() * 0.01;
 
-		//if (i % output_mod == 0)
-		//	cout << "Getting pseudorandom locations: " << i << " of " << n << endl;
-
-	}
-
-	// Get position and normal on prolate ellipsoid
-	for (size_t i = 0; i < n; i++)
-	{
 		const vector_4 rv = RayEllipsoid(vector_3(0, 0, 0), threeD_oscillators[i], vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
 
 		normals[i] = EllipsoidNormal(vector_3(rv.y, rv.z, rv.w), vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));

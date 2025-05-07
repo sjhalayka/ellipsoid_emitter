@@ -114,7 +114,7 @@ uv_camera main_camera;
 
 GLint win_id = 0;
 GLint win_x = 800, win_y = 600;
-MyBig camera_w = 10;// 0.01;
+MyBig camera_w = 100;// 0.01;
 
 MyBig camera_fov = 45.0f;
 MyBig camera_x_transform = 0;
