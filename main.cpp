@@ -8,281 +8,61 @@
 
 int main(int argc, char** argv)
 {
-	cout << setprecision(10);
-
-	const MyBig start_dim = 2.999;
-	const MyBig end_dim = 3;
-
-	const size_t dim_res = 2;
 	const size_t n = 1000000;
 
-	const size_t output_mod = 10000;
 
-	const MyBig dim_step_size = (end_dim - start_dim) / (dim_res - 1);
+	const MyBig D = 2.25;
 
-	//for (MyBig D = start_dim; D <= end_dim; D += dim_step_size)
+	threeD_oscillators.clear();
+	normals.clear();
+	threeD_line_segments.clear();
+
+	cout << "Allocating memory for oscillators" << endl;
+	threeD_oscillators.resize(n);
+
+	cout << "Allocating memory for normals" << endl;
+	normals.resize(n);
+
+	cout << "Allocating memory for line segments" << endl;
+	threeD_line_segments.resize(n);
+
+	//if (D <= 2)
+	//	D = 2.001;
+	//else if (D > 3)
+	//	D = 3;
+
+	const MyBig disk_like = 3 - D;
+	//const MyBig falloff_exponent = D;
+	//const MyBig fractionality = 1.0 - 2.0 * (0.5 - fmod(D, 1.0));
+
+
+	// Start with pseudorandom oscillator locations
+	for (size_t i = 0; i < n; i++)
 	{
-		const MyBig D = 3;
+		vector_3 r = RandomUnitVector();
+		threeD_oscillators[i] = r * 0.01;
 
-		threeD_oscillators.clear();
-		normals.clear();
-		threeD_line_segments.clear();
+		//if (i % output_mod == 0)
+		//	cout << "Getting pseudorandom locations: " << i << " of " << n << endl;
 
-
-		cout << "Allocating memory for oscillators" << endl;
-		threeD_oscillators.resize(n);
-
-		cout << "Allocating memory for normals" << endl;
-		normals.resize(n);
-
-		cout << "Allocating memory for line segments" << endl;
-		threeD_line_segments.resize(n);
-
-		//if (D <= 2)
-		//	D = 2.001;
-		//else if (D > 3)
-		//	D = 3;
-
-		const MyBig disk_like = 3 - D;
-		//const MyBig falloff_exponent = D;
-		//const MyBig fractionality = 1.0 - 2.0 * (0.5 - fmod(D, 1.0));
-
-
-		// Start with pseudorandom oscillator locations
-		for (size_t i = 0; i < n; i++)
-		{
-			vector_3 r = RandomUnitVector();
-			threeD_oscillators[i] = r;
-
-			if (i % output_mod == 0)
-				cout << "Getting pseudorandom locations: " << i << " of " << n << endl;
-
-		}
-
-		//// Spread the oscillators out, so that they are distributed evenly across
-		//// the surface of the ellipsoid emitter
-		//for (size_t i = 0; i < n; i++)
-		//{
-		//	vector_3 ring;
-
-		//	ring.x = threeD_oscillators[i].x;
-		//	ring.y = 0;
-		//	ring.z = threeD_oscillators[i].z;
-
-		//	vector_3 s = slerp(threeD_oscillators[i], ring, disk_like);
-
-		//	threeD_oscillators[i] = s;
-
-		//	if (i % output_mod == 0)
-		//		cout << "SLERPing: " << i << " of " << n << endl;
-		//}
-
-		//// Get position on oblate ellipsoid
-		//for (size_t i = 0; i < n; i++)
-		//{
-		//	vector_3 vec = threeD_oscillators[i];
-
-		//	const vector_4 rv = RayEllipsoid(vector_3(0, 0, 0), vec, vector_3(1.0, 1.0 - disk_like, 1.0));
-
-		//	threeD_oscillators[i] = vector_3(rv.y, rv.z, rv.w);
-
-		//	if (i % output_mod == 0)
-		//		cout << "Getting ellipsoid locations: " << i << " of " << n << endl;
-		//}
-
-			
-
-
-
-		// Get position and normal on prolate ellipsoid
-		for (size_t i = 0; i < n; i++)
-		{
-			//const vector_4 rv = RayEllipsoid(vector_3(0, 0, 0), threeD_oscillators[i], vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
-
-			//vector_3 collision_point = vector_3(rv.y, rv.z, rv.w);
-
-			//vector_3 normal = EllipsoidNormal(collision_point, vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
-
-			vector_3 normal = RandomUnitVector();
-			if (threeD_oscillators[i].dot(normal) < 0)
-				normal = -normal;
-
-			//vector_3 normal = threeD_oscillators[i];
-			//normal.normalize();
-
-			normals[i] = normal;
-
-			line_segment_3 ls;
-			ls.start = threeD_oscillators[i];
-			ls.end = threeD_oscillators[i] + normals[i];// *1e30;
-
-			threeD_line_segments[i] = ls;
-
-			if (i % output_mod == 0)
-				cout << "Getting elipsoid normals: " << i << " of " << n << endl;
-		}
-
-
-		string filename = to_string(D) + ".txt";
-
-		ofstream out_file(filename.c_str());
-		out_file << setprecision(30);
-
-		const MyBig receiver_radius = 1.0;
-
-		const MyBig start_distance = (1 + receiver_radius);
-		const MyBig end_distance = 100.0;
-
-		const size_t distance_res = 100;
-
-		const MyBig distance_step_size = (end_distance - start_distance) / (distance_res - 1);
-
-		for (MyBig r = start_distance; r <= end_distance; r += distance_step_size)
-		{
-			//const vector_3 receiver_pos(r, 0, 0);
-
-			//const MyBig epsilon = 1.0;
-
-			//vector_3 receiver_pos_plus = receiver_pos;
-			//receiver_pos_plus.x += epsilon;
-
-			//const long long signed int collision_count_plus = get_intersecting_line_count(receiver_pos_plus, receiver_radius, D, true);
-
-			//const long long signed int collision_count = get_intersecting_line_count(receiver_pos, receiver_radius, D, false);
-
-			//vector_3 gradient;
-			//gradient.x = static_cast<MyBig>(collision_count_plus - collision_count) / epsilon;
-
-			//const MyBig gradient_strength =
-			//	-gradient.x
-			//	/ (receiver_radius * receiver_radius);
-
-			//const MyBig gradient_strength_ =
-			//	n / (2 * pow(receiver_pos.x, 3.0));
-
-			const MyBig emitter_mass = c2 * 1.0 / (2.0 * G);
-
-			//const MyBig time_dilation = sqrt(1.0 - 1.0 / receiver_pos.x);
-
-			//const MyBig newton_strength = gradient_strength * receiver_pos.x * c * hbar * log(2.0) / (k * 2.0 * pi * emitter_mass);
-
-
-
-
-			//cout << gradient_strength / gradient_strength_ << endl;
-
-			//const MyBig newton_strength_ =
-			//	n *
-			//	c *
-			//	hbar *
-			//	log(2.0)
-			//	/
-			//	(k *
-			//		pow(receiver_pos.x, 2.0)
-			//		*
-			//		emitter_mass *
-			//		4.0 *
-			//		pi);
-
-			//const MyBig newton_strength__ = G *  emitter_mass / ( pow(receiver_pos.x, 3.0));
-
-
-
-
-			//cout << newton_strength__ / (newton_strength) << endl;
-
-
-			////	const MyBig newton_strength =
-			////		G * emitter_mass / (/*time_dilation * */ pow(receiver_pos.x, 2.0));
-
-			//	//cout << gradient_strength / gradient_strength_ << endl;
-
-
-
-
-
-
-			const vector_3 receiver_pos(r, 0, 0);
-
-			const MyBig epsilon = 1.0;
-
-			vector_3 receiver_pos_plus = receiver_pos;
-			receiver_pos_plus.x += epsilon;
-
-
-
-			//const long long signed int collision_count_plus =
-			//	get_intersecting_line_count(
-			//		receiver_pos_plus, receiver_radius, 3.0, true);
-
-			//const long long signed int collision_count =
-			//	get_intersecting_line_count(
-			//		receiver_pos, receiver_radius, 3.0, false);
-
-			const MyBig collision_count_plus = 
-				get_intersecting_line_count(n, 
-					receiver_pos_plus, receiver_radius);
-
-			const MyBig collision_count =
-				get_intersecting_line_count(n,
-					receiver_pos, receiver_radius);
-
-			const MyBig gradient =
-				(MyBig(collision_count_plus) - MyBig(collision_count))
-				/ epsilon;
-
-			const MyBig gradient_strength =
-				-gradient
-				/ (receiver_radius * receiver_radius);
-
-
-			//const MyBig newton_strength_ =
-			//	 G * k * emitter_mass / (4 * c2 * pow(receiver_pos.x, 2.0));
-
-			const MyBig newton_strength_ =
-				G  * emitter_mass  / (pow(receiver_pos.x, 2.0));
-
-			const MyBig newton_strength__ =
-				gradient_strength * receiver_pos.x * c * hbar * log(2)
-				/ (k * 2 * pi * emitter_mass);
-
-
-			//const MyBig newton_strength =
-			//	n *
-			//	c *
-			//	hbar *
-			//	log(2.0)
-			//	/
-			//	(k *
-			//		pow(receiver_pos.x, 2.0)
-			//		*
-			//		emitter_mass *
-			//		4.0 *
-			//		pi);
-
-			cout << newton_strength__ / newton_strength_ << endl;
-
-			cout << "r: " << r << " gradient strength: "
-				<< gradient_strength << endl;
-
-			out_file << r << " " << gradient_strength << endl;
-
-
-
-
-
-
-
-
-			//cout << "D: " << D << " r: " << r << " " << gradient_strength << endl;
-
-			//out_file << r << " " << gradient_strength << endl;
-		}
-
-		out_file.close();
 	}
 
-	//return 0;
+	// Get position and normal on prolate ellipsoid
+	for (size_t i = 0; i < n; i++)
+	{
+		const vector_4 rv = RayEllipsoid(vector_3(0, 0, 0), threeD_oscillators[i], vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
+
+		normals[i] = EllipsoidNormal(vector_3(rv.y, rv.z, rv.w), vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
+		threeD_oscillators[i] = vector_3(0, 0, 0);
+
+		line_segment_3 ls;
+		ls.start = threeD_oscillators[i];
+		ls.end = threeD_oscillators[i] + normals[i];
+
+		threeD_line_segments[i] = ls;
+	}
+
+
 
 
 
@@ -419,7 +199,7 @@ void draw_objects(void)
 
 	glColor4f(1.0f, 0.5f, 0, 0.2f);
 
-	for (size_t i = 0; i < threeD_oscillators.size(); i++)
+	for (size_t i = 0; i < threeD_line_segments.size(); i++)
 	{
 		//if (threeD_line_segments[i].start.z > 0 || threeD_line_segments[i].end.z > 0)
 		//	continue;
@@ -428,8 +208,8 @@ void draw_objects(void)
 		//	continue;
 
 
-		glVertex3d(threeD_oscillators[i].x, threeD_oscillators[i].y, threeD_oscillators[i].z);
-		glVertex3d(threeD_oscillators[i].x + normals[i].x, threeD_oscillators[i].y + normals[i].y, threeD_oscillators[i].z + normals[i].z);
+		glVertex3d(threeD_line_segments[i].start.x, threeD_line_segments[i].start.y, threeD_line_segments[i].start.z);
+		glVertex3d(threeD_line_segments[i].end.x, threeD_line_segments[i].end.y, threeD_line_segments[i].end.z);
 	}
 
 	glEnd();
