@@ -46,8 +46,7 @@ bool intersect_AABB(const vector_3 min_location, const vector_3 max_location, co
 
 
 
-
-int main(int argc, char** argv)
+void get_density_and_gradient(MyBig& density, MyBig& gradient)
 {
 	const size_t n = 10000000;
 	const MyBig start_dim = 2.01; // Minimum 2.000001
@@ -111,8 +110,7 @@ int main(int argc, char** argv)
 
 			MyBig epsilon = 0.001;
 
-			size_t count0 = 0;
-			MyBig density0 = 0;
+			MyBig count0 = 0;
 
 			// Unit box
 			vector_3 min_location(-0.5 + r, -0.5, -0.5);
@@ -141,18 +139,16 @@ int main(int argc, char** argv)
 					ls.end = ray_hit_end;
 
 					threeD_line_segments_intersected.push_back(ls);
-					count0++;
-					density0 += l;
+					count0 += 1;
 				}
 			}
 
-			density0 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
+			count0 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
 
 
 
 
-			size_t count1 = 0;
-			MyBig density1 = 0;
+			MyBig count1 = 0;
 
 			// Unit box
 			min_location = vector_3(-0.5 + r + epsilon, -0.5, -0.5);
@@ -181,19 +177,25 @@ int main(int argc, char** argv)
 					ls.end = ray_hit_end;
 
 					threeD_line_segments_intersected2.push_back(ls);
-					count1++;
-					density1 += l;
+					count1 += 1;
 				}
 			}
+					
+			count1 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
 
-			density1 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
-
-			const MyBig gradient = (density1 - density0) / epsilon;
-			const MyBig density = density0;
+			gradient = (count1 - count0) / epsilon;
+			density = count0;
 
 			cout << D << " " << r << " " << gradient << " " << density << endl;
 		}
 	}
+}
+
+int main(int argc, char** argv)
+{
+
+	MyBig density = 0, gradient = 0;
+	get_density_and_gradient(density, gradient);
 
 
 
