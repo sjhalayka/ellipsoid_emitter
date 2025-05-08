@@ -49,11 +49,19 @@ bool intersect_AABB(const vector_3 min_location, const vector_3 max_location, co
 void get_density_and_gradient(MyBig& density, MyBig& gradient)
 {
 	const size_t n = 10000000;
+
+	const MyBig emitter_radius = sqrt((n * G * hbar * log(2.0)) / (k * c3 * pi));
+	const MyBig emitter_area = 4 * pi * emitter_radius * emitter_radius;
+	const MyBig mass = c2 * emitter_radius / (2.0 * G);
+
+	cout << "emitter_radius: " << emitter_radius << endl;
+	cout << "mass: " <<  mass << endl;
+	cout << "n: " << n << endl;
+	cout << endl;
+
 	const MyBig start_dim = 2.01; // Minimum 2.000001
 	const MyBig end_dim = 3.0; // Maximum 3
-
 	const size_t dim_res = 2; // Larger than 1
-
 	const MyBig dim_step_size = (end_dim - start_dim) / (dim_res - 1);
 
 	//for (MyBig D = start_dim; D <= end_dim; D += dim_step_size)
@@ -67,7 +75,7 @@ void get_density_and_gradient(MyBig& density, MyBig& gradient)
 		normals.resize(n);
 		threeD_line_segments.resize(n);
 
-		const MyBig D = 2.001;
+		const MyBig D = 3;
 
 		const MyBig disk_like = 3 - D;
 
@@ -76,7 +84,7 @@ void get_density_and_gradient(MyBig& density, MyBig& gradient)
 		// Get normal on prolate ellipsoid
 		for (size_t i = 0; i < n; i++)
 		{
-			threeD_oscillators[i] = RandomUnitVector() * 0.01;
+			threeD_oscillators[i] = RandomUnitVector() * 0.01; // Something much smaller than unit vectors
 
 			const vector_4 rv = RayEllipsoid(vector_3(0, 0, 0), threeD_oscillators[i], vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
 
@@ -91,7 +99,7 @@ void get_density_and_gradient(MyBig& density, MyBig& gradient)
 		}
 
 
-		const MyBig start_distance = 20.0;
+		const MyBig start_distance = 90.0;
 		const MyBig end_distance = 100.0;
 		const size_t distance_res = 10;
 
@@ -108,9 +116,12 @@ void get_density_and_gradient(MyBig& density, MyBig& gradient)
 				start_distance;
 
 
-			MyBig epsilon = 0.001;
+
+
+			MyBig epsilon = 0.0001;
 
 			MyBig count0 = 0;
+			MyBig density0 = 0;
 
 			// Unit box
 			vector_3 min_location(-0.5 + r, -0.5, -0.5);
@@ -140,15 +151,12 @@ void get_density_and_gradient(MyBig& density, MyBig& gradient)
 
 					threeD_line_segments_intersected.push_back(ls);
 					count0 += 1;
+					density0 += l;
 				}
 			}
 
-			count0 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
-
-
-
-
 			MyBig count1 = 0;
+			MyBig density1 = 0;
 
 			// Unit box
 			min_location = vector_3(-0.5 + r + epsilon, -0.5, -0.5);
@@ -178,15 +186,29 @@ void get_density_and_gradient(MyBig& density, MyBig& gradient)
 
 					threeD_line_segments_intersected2.push_back(ls);
 					count1 += 1;
+					density1 += l;
 				}
 			}
 					
-			count1 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
 
-			gradient = (count1 - count0) / epsilon;
-			density = count0;
+			density0 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
+			density1 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
 
-			cout << D << " " << r << " " << gradient << " " << density << endl;
+			gradient = (density1 - density0) / epsilon;
+			density = density0;
+			
+
+			MyBig gradient_ = n / (2 * r * r * r);
+			//MyBig g_N = n * c * hbar * log(2.0) / (r * r * k * 4 * pi * mass);
+
+			cout << gradient / gradient_ << endl;
+
+			MyBig g_N = gradient * r * c * hbar * log(2.0) / (k * 2*pi * mass);
+			MyBig g_N_ = G * mass / (r * r);
+
+			cout << g_N / g_N_ << endl;
+
+		//	cout << D << " " << r << " " << gradient << " " << density << endl;
 		}
 	}
 }
@@ -202,7 +224,7 @@ int main(int argc, char** argv)
 	std::chrono::high_resolution_clock::time_point global_time_end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<float, std::milli> elapsed = global_time_end - global_time_start;
 
-	cout << elapsed.count() / 1000.0f << endl;
+	cout << elapsed.count() / 1000.0f << " seconds elapsed" << endl;
 
 
 
