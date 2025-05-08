@@ -2,12 +2,11 @@
 
 
 
-vector_3 min_location(-1 + 20, -1, -1);
-vector_3 max_location(1 + 20, 1, 1);
 
 
 
-bool intersect_AABB(vector_3 ray_origin, vector_3 ray_dir, MyBig &tmin, MyBig &tmax)
+
+bool intersect_AABB(const vector_3 min_location, const vector_3 max_location, const vector_3 ray_origin, const vector_3 ray_dir, MyBig &tmin, MyBig &tmax)
 {
 	 tmin = (min_location.x - ray_origin.x) / ray_dir.x;
 	 tmax = (max_location.x - ray_origin.x) / ray_dir.x;
@@ -51,77 +50,130 @@ bool intersect_AABB(vector_3 ray_origin, vector_3 ray_dir, MyBig &tmin, MyBig &t
 int main(int argc, char** argv)
 {
 	const size_t n = 10000000;
+	const MyBig start_dim = 2.01; // Minimum 2.000001
+	const MyBig end_dim = 3.0; // Maximum 3
 
-	MyBig D = 2.001;
+	const size_t dim_res = 2; // Larger than 1
 
-	threeD_oscillators.clear();
-	normals.clear();
-	threeD_line_segments.clear();
-	threeD_line_segments_intersected.clear();
+	const MyBig dim_step_size = (end_dim - start_dim) / (dim_res - 1);
 
-	threeD_oscillators.resize(n);
-	normals.resize(n);
-	threeD_line_segments.resize(n);
-
-	if (D <= 2)
-		D = 2.001;
-	else if (D > 3)
-		D = 3;
-
-	const MyBig disk_like = 3 - D;
-	//const MyBig falloff_exponent = D;
-	//const MyBig fractionality = 1.0 - 2.0 * (0.5 - fmod(D, 1.0));
-
-	// Get [posinormal on prolate ellipsoid
-	for (size_t i = 0; i < n; i++)
+	for (MyBig D = start_dim; D <= end_dim; D += dim_step_size)
 	{
-		threeD_oscillators[i] = RandomUnitVector() * 0.01;
+		threeD_oscillators.clear();
+		normals.clear();
+		threeD_line_segments.clear();
+		threeD_line_segments_intersected.clear();
 
-		const vector_4 rv = RayEllipsoid(vector_3(0, 0, 0), threeD_oscillators[i], vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
+		threeD_oscillators.resize(n);
+		normals.resize(n);
+		threeD_line_segments.resize(n);
 
-		normals[i] = EllipsoidNormal(vector_3(rv.y, rv.z, rv.w), vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
-		threeD_oscillators[i] = vector_3(0, 0, 0);
 
-		line_segment_3 ls;
-		ls.start = threeD_oscillators[i];
-		ls.end = threeD_oscillators[i] + normals[i];
+		const MyBig disk_like = 3 - D;
+		const MyBig line_like = 2 - D;
 
-		threeD_line_segments[i] = ls;
-	}
+		//const MyBig falloff_exponent = D;
+		//const MyBig fractionality = 1.0 - 2.0 * (0.5 - fmod(D, 1.0));
 
-	float density = 0;
-
-	for (size_t i = 0; i < threeD_line_segments.size(); i++)
-	{
-		vector_3 ray_origin = threeD_oscillators[i];
-		vector_3 ray_dir = normals[i];
-
-		MyBig tmin = 0, tmax = 0;
-
-		if(intersect_AABB(ray_origin, ray_dir, tmin, tmax))
+		// Get [posinormal on prolate ellipsoid
+		for (size_t i = 0; i < n; i++)
 		{
-			// If pointing in the wrong direction
-			if (tmin < 0 || tmax < 0)
-				continue;
+			threeD_oscillators[i] = RandomUnitVector() * 0.01;
 
-			vector_3 ray_hit_start = ray_origin + ray_dir * tmin;
-			vector_3 ray_hit_end = ray_origin + ray_dir * tmax;
+			const vector_4 rv = RayEllipsoid(vector_3(0, 0, 0), threeD_oscillators[i], vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
 
-			float l = (ray_hit_end - ray_hit_start).length();
+			normals[i] = EllipsoidNormal(vector_3(rv.y, rv.z, rv.w), vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
+			threeD_oscillators[i] = vector_3(0, 0, 0);
 
 			line_segment_3 ls;
-			ls.start = ray_hit_start;
-			ls.end = ray_hit_end;
+			ls.start = threeD_oscillators[i];
+			ls.end = threeD_oscillators[i] + normals[i];
 
-			threeD_line_segments_intersected.push_back(ls);
-			density += l;
+			threeD_line_segments[i] = ls;
 		}
 
+		size_t count0 = 0;
+		MyBig density0 = 0;
+
+		vector_3 min_location(-1 + 20, -1, -1);
+		vector_3 max_location(1 + 20, 1, 1);
+
+		for (size_t i = 0; i < threeD_line_segments.size(); i++)
+		{
+			vector_3 ray_origin = threeD_oscillators[i];
+			vector_3 ray_dir = normals[i];
+
+			MyBig tmin = 0, tmax = 0;
+
+			if (intersect_AABB(min_location, max_location, ray_origin, ray_dir, tmin, tmax))
+			{
+				// If pointing in the wrong direction
+				if (tmin < 0 || tmax < 0)
+					continue;
+
+				vector_3 ray_hit_start = ray_origin + ray_dir * tmin;
+				vector_3 ray_hit_end = ray_origin + ray_dir * tmax;
+
+				MyBig l = (ray_hit_end - ray_hit_start).length();
+
+				line_segment_3 ls;
+				ls.start = ray_hit_start;
+				ls.end = ray_hit_end;
+
+				threeD_line_segments_intersected.push_back(ls);
+				count0++;
+				density0 += l;
+			}
+		}
+
+		density0 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
+
+
+
+
+		size_t count1 = 0;
+		MyBig density1 = 0;
+
+		MyBig epsilon = 1;
+
+		min_location = vector_3(-1 + 20 + epsilon, -1, -1);
+		max_location = vector_3(1 + 20 + epsilon, 1, 1);
+
+		for (size_t i = 0; i < threeD_line_segments.size(); i++)
+		{
+			vector_3 ray_origin = threeD_oscillators[i];
+			vector_3 ray_dir = normals[i];
+
+			MyBig tmin = 0, tmax = 0;
+
+			if (intersect_AABB(min_location, max_location, ray_origin, ray_dir, tmin, tmax))
+			{
+				// If pointing in the wrong direction
+				if (tmin < 0 || tmax < 0)
+					continue;
+
+				vector_3 ray_hit_start = ray_origin + ray_dir * tmin;
+				vector_3 ray_hit_end = ray_origin + ray_dir * tmax;
+
+				MyBig l = (ray_hit_end - ray_hit_start).length();
+
+				line_segment_3 ls;
+				ls.start = ray_hit_start;
+				ls.end = ray_hit_end;
+
+				threeD_line_segments_intersected.push_back(ls);
+				count1++;
+				density1 += l;
+			}
+		}
+
+		density1 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
+
+		const MyBig gradient = (density1 - density0) / epsilon;
 	}
 
-	density /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
 
-	cout << density << endl;
+
 
 
 
@@ -303,20 +355,17 @@ void draw_objects(void)
 
 
 
-	//glBegin(GL_LINES);
+	glBegin(GL_LINES);
 
-	//glColor4f(0, 1, 0, 0.1f);
+	glColor4f(0, 1, 0, 0.1f);
 
-	//for (size_t i = 0; i < threeD_line_segments.size(); i++)
-	//{
-	//	if(threeD_line_segments[i].start.z > 0 || threeD_line_segments[i].end.z > 0)
-	//		continue;
+	for (size_t i = 0; i < threeD_line_segments.size(); i++)
+	{
+		glVertex3d(threeD_line_segments[i].start.x, threeD_line_segments[i].start.y, threeD_line_segments[i].start.z);
+		glVertex3d(threeD_line_segments[i].end.x, threeD_line_segments[i].end.y, threeD_line_segments[i].end.z);
+	}
 
-	//	glVertex3d(threeD_line_segments[i].start.x, threeD_line_segments[i].start.y, threeD_line_segments[i].start.z);
-	//	glVertex3d(threeD_line_segments[i].end.x, threeD_line_segments[i].end.y, threeD_line_segments[i].end.z);
-	//}
-
-	//glEnd();
+	glEnd();
 
 
 
