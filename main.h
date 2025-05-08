@@ -96,7 +96,7 @@ vector<vector_3> threeD_oscillators;
 vector<vector_3> normals;
 vector<line_segment_3> threeD_line_segments;
 vector<line_segment_3> threeD_line_segments_intersected;
-
+vector<line_segment_3> threeD_line_segments_intersected2;
 
 
 

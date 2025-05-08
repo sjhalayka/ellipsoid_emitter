@@ -57,8 +57,10 @@ int main(int argc, char** argv)
 
 	const MyBig dim_step_size = (end_dim - start_dim) / (dim_res - 1);
 
-	for (MyBig D = start_dim; D <= end_dim; D += dim_step_size)
+	//for (MyBig D = start_dim; D <= end_dim; D += dim_step_size)
 	{
+		MyBig D = 3.0;
+
 		threeD_oscillators.clear();
 		normals.clear();
 		threeD_line_segments.clear();
@@ -75,7 +77,7 @@ int main(int argc, char** argv)
 		//const MyBig falloff_exponent = D;
 		//const MyBig fractionality = 1.0 - 2.0 * (0.5 - fmod(D, 1.0));
 
-		// Get [posinormal on prolate ellipsoid
+		// Get Bnormal on prolate ellipsoid
 		for (size_t i = 0; i < n; i++)
 		{
 			threeD_oscillators[i] = RandomUnitVector() * 0.01;
@@ -92,84 +94,107 @@ int main(int argc, char** argv)
 			threeD_line_segments[i] = ls;
 		}
 
-		size_t count0 = 0;
-		MyBig density0 = 0;
 
-		vector_3 min_location(-1 + 20, -1, -1);
-		vector_3 max_location(1 + 20, 1, 1);
+		const MyBig start_distance = 20.0;
+		const MyBig end_distance = 100.0;
+		const size_t distance_res = 10;
 
-		for (size_t i = 0; i < threeD_line_segments.size(); i++)
+		const MyBig distance_step_size =
+			(end_distance - start_distance)
+			/ (distance_res - 1);
+
+		//for (size_t step_index = 0; step_index < distance_res; step_index++)
 		{
-			vector_3 ray_origin = threeD_oscillators[i];
-			vector_3 ray_dir = normals[i];
+			//const MyBig r =
+			//	start_distance + step_index * distance_step_size;
 
-			MyBig tmin = 0, tmax = 0;
+			const MyBig r =
+				start_distance;
 
-			if (intersect_AABB(min_location, max_location, ray_origin, ray_dir, tmin, tmax))
+
+			MyBig epsilon = 0.025;
+
+			size_t count0 = 0;
+			MyBig density0 = 0;
+
+			vector_3 min_location(-1 + r, -1, -1);
+			vector_3 max_location(1 + r, 1, 1);
+
+			for (size_t i = 0; i < threeD_line_segments.size(); i++)
 			{
-				// If pointing in the wrong direction
-				if (tmin < 0 || tmax < 0)
-					continue;
+				vector_3 ray_origin = threeD_oscillators[i];
+				vector_3 ray_dir = normals[i];
 
-				vector_3 ray_hit_start = ray_origin + ray_dir * tmin;
-				vector_3 ray_hit_end = ray_origin + ray_dir * tmax;
+				MyBig tmin = 0, tmax = 0;
 
-				MyBig l = (ray_hit_end - ray_hit_start).length();
+				if (intersect_AABB(min_location, max_location, ray_origin, ray_dir, tmin, tmax))
+				{
+					// If pointing in the wrong direction
+					if (tmin < 0 || tmax < 0)
+						continue;
 
-				line_segment_3 ls;
-				ls.start = ray_hit_start;
-				ls.end = ray_hit_end;
+					vector_3 ray_hit_start = ray_origin + ray_dir * tmin;
+					vector_3 ray_hit_end = ray_origin + ray_dir * tmax;
 
-				threeD_line_segments_intersected.push_back(ls);
-				count0++;
-				density0 += l;
+					MyBig l = (ray_hit_end - ray_hit_start).length();
+
+					line_segment_3 ls;
+					ls.start = ray_hit_start;
+					ls.end = ray_hit_end;
+
+					threeD_line_segments_intersected.push_back(ls);
+					count0++;
+					density0 += l;
+				}
 			}
-		}
 
-		density0 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
-
+			density0 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
 
 
 
-		size_t count1 = 0;
-		MyBig density1 = 0;
 
-		MyBig epsilon = 1;
+			size_t count1 = 0;
+			MyBig density1 = 0;
 
-		min_location = vector_3(-1 + 20 + epsilon, -1, -1);
-		max_location = vector_3(1 + 20 + epsilon, 1, 1);
 
-		for (size_t i = 0; i < threeD_line_segments.size(); i++)
-		{
-			vector_3 ray_origin = threeD_oscillators[i];
-			vector_3 ray_dir = normals[i];
+			min_location = vector_3(-1 + r + epsilon, - 1, -1);
+			max_location = vector_3(1 + r + epsilon, 1, 1);
 
-			MyBig tmin = 0, tmax = 0;
-
-			if (intersect_AABB(min_location, max_location, ray_origin, ray_dir, tmin, tmax))
+			for (size_t i = 0; i < threeD_line_segments.size(); i++)
 			{
-				// If pointing in the wrong direction
-				if (tmin < 0 || tmax < 0)
-					continue;
+				vector_3 ray_origin = threeD_oscillators[i];
+				vector_3 ray_dir = normals[i];
 
-				vector_3 ray_hit_start = ray_origin + ray_dir * tmin;
-				vector_3 ray_hit_end = ray_origin + ray_dir * tmax;
+				MyBig tmin = 0, tmax = 0;
 
-				MyBig l = (ray_hit_end - ray_hit_start).length();
+				if (intersect_AABB(min_location, max_location, ray_origin, ray_dir, tmin, tmax))
+				{
+					// If pointing in the wrong direction
+					if (tmin < 0 || tmax < 0)
+						continue;
 
-				line_segment_3 ls;
-				ls.start = ray_hit_start;
-				ls.end = ray_hit_end;
+					vector_3 ray_hit_start = ray_origin + ray_dir * tmin;
+					vector_3 ray_hit_end = ray_origin + ray_dir * tmax;
 
-				threeD_line_segments_intersected.push_back(ls);
-				count1++;
-				density1 += l;
+					MyBig l = (ray_hit_end - ray_hit_start).length();
+
+					line_segment_3 ls;
+					ls.start = ray_hit_start;
+					ls.end = ray_hit_end;
+
+					threeD_line_segments_intersected2.push_back(ls);
+					count1++;
+					density1 += l;
+				}
 			}
+
+			density1 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
+
+			const MyBig gradient = (density1 - density0) / epsilon;
+			const MyBig density = (density1 + density0) * 0.5;
+
+			cout << D << " " << r << " " << gradient << " " << density << endl;
 		}
-
-		density1 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
-
-		const MyBig gradient = (density1 - density0) / epsilon;
 	}
 
 
@@ -369,7 +394,19 @@ void draw_objects(void)
 
 
 
+	glBegin(GL_LINES);
 
+	glColor4f(0, 0.5, 1.0, 0.2f);
+
+	//cout << threeD_line_segments_intersected.size() << endl;
+
+	for (size_t i = 0; i < threeD_line_segments_intersected2.size(); i++)
+	{
+		glVertex3d(threeD_line_segments_intersected2[i].start.x, threeD_line_segments_intersected2[i].start.y, threeD_line_segments_intersected2[i].start.z);
+		glVertex3d(threeD_line_segments_intersected2[i].end.x, threeD_line_segments_intersected2[i].end.y, threeD_line_segments_intersected2[i].end.z);
+	}
+
+	glEnd();
 
 
 	glBegin(GL_LINES);
