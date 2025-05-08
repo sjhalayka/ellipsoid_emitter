@@ -194,8 +194,18 @@ void get_density_and_gradient(MyBig& density, MyBig& gradient)
 int main(int argc, char** argv)
 {
 
+	std::chrono::high_resolution_clock::time_point global_time_start = std::chrono::high_resolution_clock::now();
+
 	MyBig density = 0, gradient = 0;
 	get_density_and_gradient(density, gradient);
+
+	std::chrono::high_resolution_clock::time_point global_time_end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<float, std::milli> elapsed = global_time_end - global_time_start;
+
+	cout << elapsed.count() / 1000.0f << endl;
+
+
+
 
 
 

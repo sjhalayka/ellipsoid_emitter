@@ -26,45 +26,32 @@ using custom_math::line_segment_3;
 
 
 #include <iostream>
-using std::cout;
-using std::endl;
 
 #include <iomanip>
-using std::setprecision;
 
 #include <vector>
-using std::vector;
 
 #include <string>
-using std::string;
-using std::to_string;
 
 #include <sstream>
-using std::ostringstream;
-using std::istringstream;
 
 #include <fstream>
-using std::ofstream;
-using std::ifstream;
 
 #include <set>
-using std::set;
 
 #include <map>
-using std::map;
 
 #include <utility>
-using std::pair;
 
 #include <mutex>
-using std::mutex;
 
 #include <thread>
-using std::thread;
 
 #include <utility>
-using std::swap;
 
+#include <chrono>
+
+using namespace std;
 
 
 #ifdef USE_OPENGL
