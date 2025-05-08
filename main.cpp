@@ -59,8 +59,6 @@ int main(int argc, char** argv)
 
 	//for (MyBig D = start_dim; D <= end_dim; D += dim_step_size)
 	{
-		MyBig D = 3.0;
-
 		threeD_oscillators.clear();
 		normals.clear();
 		threeD_line_segments.clear();
@@ -70,14 +68,13 @@ int main(int argc, char** argv)
 		normals.resize(n);
 		threeD_line_segments.resize(n);
 
+		const MyBig D = 2.001;
 
 		const MyBig disk_like = 3 - D;
-		const MyBig line_like = 2 - D;
 
-		//const MyBig falloff_exponent = D;
 		//const MyBig fractionality = 1.0 - 2.0 * (0.5 - fmod(D, 1.0));
 
-		// Get Bnormal on prolate ellipsoid
+		// Get normal on prolate ellipsoid
 		for (size_t i = 0; i < n; i++)
 		{
 			threeD_oscillators[i] = RandomUnitVector() * 0.01;
@@ -112,13 +109,14 @@ int main(int argc, char** argv)
 				start_distance;
 
 
-			MyBig epsilon = 0.025;
+			MyBig epsilon = 0.001;
 
 			size_t count0 = 0;
 			MyBig density0 = 0;
 
-			vector_3 min_location(-1 + r, -1, -1);
-			vector_3 max_location(1 + r, 1, 1);
+			// Unit box
+			vector_3 min_location(-0.5 + r, -0.5, -0.5);
+			vector_3 max_location(0.5 + r, 0.5, 0.5);
 
 			for (size_t i = 0; i < threeD_line_segments.size(); i++)
 			{
@@ -156,9 +154,9 @@ int main(int argc, char** argv)
 			size_t count1 = 0;
 			MyBig density1 = 0;
 
-
-			min_location = vector_3(-1 + r + epsilon, - 1, -1);
-			max_location = vector_3(1 + r + epsilon, 1, 1);
+			// Unit box
+			min_location = vector_3(-0.5 + r + epsilon, -0.5, -0.5);
+			max_location = vector_3(0.5 + r + epsilon, 0.5, 0.5);
 
 			for (size_t i = 0; i < threeD_line_segments.size(); i++)
 			{
@@ -191,7 +189,7 @@ int main(int argc, char** argv)
 			density1 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
 
 			const MyBig gradient = (density1 - density0) / epsilon;
-			const MyBig density = (density1 + density0) * 0.5;
+			const MyBig density = density0;
 
 			cout << D << " " << r << " " << gradient << " " << density << endl;
 		}
