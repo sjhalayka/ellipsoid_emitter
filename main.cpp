@@ -197,12 +197,12 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 			beta = density0;
 			alpha = (density1 - density0) / epsilon;			
 
-			MyBig g = -alpha*pi;
-			MyBig g_ = n / (2.0 * r * r * r);
+			//MyBig g = -alpha*pi;
+			//MyBig g_ = n / (2.0 * r * r * r);
 
-			cout << g_  << " " << g << endl;
+			//cout << g_  << " " << g << endl;
 
-			MyBig g_N = g_ * r * c * hbar * log(2.0) / (k * pi * 2 * mass);
+			MyBig g_N = -alpha * r * c * hbar * log(2.0) / (k * 2 * mass);
 			MyBig g_N_ = G * mass / (r * r);
 
 			cout << g_N_ << " " << g_N << endl;
