@@ -46,9 +46,9 @@ bool intersect_AABB(const vector_3 min_location, const vector_3 max_location, co
 
 
 
-void get_density_and_gradient(MyBig& density, MyBig& gradient)
+void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 {
-	const size_t n = 10000000;
+	const size_t n = 100000000;
 
 	const MyBig emitter_radius = sqrt((n * G * hbar * log(2.0)) / (k * c3 * pi));
 	const MyBig emitter_area = 4 * pi * emitter_radius * emitter_radius;
@@ -73,7 +73,7 @@ void get_density_and_gradient(MyBig& density, MyBig& gradient)
 
 		threeD_oscillators.resize(n);
 		normals.resize(n);
-		threeD_line_segments.resize(n);
+		//threeD_line_segments.resize(n);
 
 		const MyBig D = 3;
 
@@ -91,15 +91,15 @@ void get_density_and_gradient(MyBig& density, MyBig& gradient)
 			normals[i] = EllipsoidNormal(vector_3(rv.y, rv.z, rv.w), vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
 			threeD_oscillators[i] = vector_3(0, 0, 0);
 
-			line_segment_3 ls;
-			ls.start = threeD_oscillators[i];
-			ls.end = threeD_oscillators[i] + normals[i];
+			//line_segment_3 ls;
+			//ls.start = threeD_oscillators[i];
+			//ls.end = threeD_oscillators[i] + normals[i];
 
-			threeD_line_segments[i] = ls;
+			//threeD_line_segments[i] = ls;
 		}
 
 
-		const MyBig start_distance = 90.0;
+		const MyBig start_distance = 50.0;
 		const MyBig end_distance = 100.0;
 		const size_t distance_res = 10;
 
@@ -118,7 +118,7 @@ void get_density_and_gradient(MyBig& density, MyBig& gradient)
 
 
 
-			MyBig epsilon = 0.0001;
+			MyBig epsilon = 0.000001;
 
 			MyBig count0 = 0;
 			MyBig density0 = 0;
@@ -127,7 +127,7 @@ void get_density_and_gradient(MyBig& density, MyBig& gradient)
 			vector_3 min_location(-0.5 + r, -0.5, -0.5);
 			vector_3 max_location(0.5 + r, 0.5, 0.5);
 
-			for (size_t i = 0; i < threeD_line_segments.size(); i++)
+			for (size_t i = 0; i < n; i++)
 			{
 				vector_3 ray_origin = threeD_oscillators[i];
 				vector_3 ray_dir = normals[i];
@@ -149,7 +149,7 @@ void get_density_and_gradient(MyBig& density, MyBig& gradient)
 					ls.start = ray_hit_start;
 					ls.end = ray_hit_end;
 
-					threeD_line_segments_intersected.push_back(ls);
+					//threeD_line_segments_intersected.push_back(ls);
 					count0 += 1;
 					density0 += l;
 				}
@@ -162,7 +162,7 @@ void get_density_and_gradient(MyBig& density, MyBig& gradient)
 			min_location = vector_3(-0.5 + r + epsilon, -0.5, -0.5);
 			max_location = vector_3(0.5 + r + epsilon, 0.5, 0.5);
 
-			for (size_t i = 0; i < threeD_line_segments.size(); i++)
+			for (size_t i = 0; i < n; i++)
 			{
 				vector_3 ray_origin = threeD_oscillators[i];
 				vector_3 ray_dir = normals[i];
@@ -184,7 +184,7 @@ void get_density_and_gradient(MyBig& density, MyBig& gradient)
 					ls.start = ray_hit_start;
 					ls.end = ray_hit_end;
 
-					threeD_line_segments_intersected2.push_back(ls);
+					//threeD_line_segments_intersected2.push_back(ls);
 					count1 += 1;
 					density1 += l;
 				}
@@ -194,19 +194,18 @@ void get_density_and_gradient(MyBig& density, MyBig& gradient)
 			density0 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
 			density1 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
 
-			gradient = (density1 - density0) / epsilon;
-			density = density0;
-			
+			beta = density0;
+			alpha = (density1 - density0) / epsilon;			
 
-			MyBig gradient_ = n / (2 * r * r * r);
-			//MyBig g_N = n * c * hbar * log(2.0) / (r * r * k * 4 * pi * mass);
+			MyBig g = -alpha*pi;
+			MyBig g_ = n / (2.0 * r * r * r);
 
-			cout << gradient / gradient_ << endl;
+			cout << g_  << " " << g << endl;
 
-			MyBig g_N = gradient * r * c * hbar * log(2.0) / (k * 2*pi * mass);
+			MyBig g_N = g_ * r * c * hbar * log(2.0) / (k * pi * 2 * mass);
 			MyBig g_N_ = G * mass / (r * r);
 
-			cout << g_N / g_N_ << endl;
+			cout << g_N_ << " " << g_N << endl;
 
 		//	cout << D << " " << r << " " << gradient << " " << density << endl;
 		}
