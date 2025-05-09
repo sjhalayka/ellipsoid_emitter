@@ -100,7 +100,7 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 		}
 
 
-		const MyBig start_distance = 99.0;
+		const MyBig start_distance = 20.0;
 		const MyBig end_distance = 100.0;
 		const size_t distance_res = 10;
 
@@ -198,14 +198,24 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 			beta = density0;
 
 			MyBig g = -alpha*pi;
-			MyBig g_ = n / (2.0 * r * r * r);
+			//MyBig g_ = n / (2.0 * r * r * r);
 
-			cout << g_ / g << endl;
+			//cout << g << endl;
 
 			MyBig g_N = g * r * c * hbar * log(2.0) / (k * pi * 2.0 * mass);
 			MyBig g_N_ = G * mass / (r * r);
 
-			cout << g_N_ / g_N << endl;
+			MyBig v = sqrt(g * r * r * c * hbar * log(2.0) / (k * pi * 2.0 * mass));
+			MyBig a_ = v * v / r;
+			MyBig a__ = g * r * c * hbar * log(2.0) / (k * pi * 2.0 * mass);
+			MyBig a = -alpha * r * c * hbar * log(2.0) / (k * 2.0 * mass);
+
+
+			//cout << a << " " << a_ << endl;
+
+			cout << g_N / g_N_ << endl;
+
+
 		}
 	}
 }
