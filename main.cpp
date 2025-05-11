@@ -54,9 +54,13 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 	const MyBig emitter_radius = sqrt((n * G * hbar * log(2.0)) / (k * c3 * pi));
 	const MyBig emitter_area = 4 * pi * emitter_radius * emitter_radius;
 	const MyBig mass = c2 * emitter_radius / (2.0 * G);
+	const MyBig mass2 = sqrt((n * c * hbar * log(2.0)) / (4 * G * k * pi));
+
+
 
 	cout << "emitter_radius: " << emitter_radius << endl;
 	cout << "mass: " <<  mass << endl;
+	//cout << "mass2 : " << mass2 << endl;
 	cout << "n: " << n << endl;
 	cout << endl;
 
@@ -71,10 +75,10 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 		normals.clear();
 		threeD_line_segments.clear();
 		threeD_line_segments_intersected.clear();
-
-		threeD_oscillators.resize(n);
+		threeD_line_segments_intersected2.clear();
+		//threeD_oscillators.resize(n);
 		normals.resize(n);
-		//threeD_line_segments.resize(n);
+		//threeD_line_segments.resize(n);	
 
 		const MyBig D = 3;
 
@@ -85,12 +89,12 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 		// Get normal on prolate ellipsoid
 		for (size_t i = 0; i < n; i++)
 		{
-			threeD_oscillators[i] = RandomUnitVector() * 0.01; // Something much smaller than unit vectors
+			vector_3 oscillator = RandomUnitVector() * 0.01; // Something much smaller than unit vectors
 
-			const vector_4 rv = RayEllipsoid(vector_3(0, 0, 0), threeD_oscillators[i], vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
+			const vector_4 rv = RayEllipsoid(vector_3(0, 0, 0), oscillator, vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
 
 			normals[i] = EllipsoidNormal(vector_3(rv.y, rv.z, rv.w), vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
-			threeD_oscillators[i] = vector_3(0, 0, 0);
+			//threeD_oscillators[i] = vector_3(0, 0, 0);
 
 			//line_segment_3 ls;
 			//ls.start = threeD_oscillators[i];
@@ -130,7 +134,7 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 
 			for (size_t i = 0; i < n; i++)
 			{
-				vector_3 ray_origin = threeD_oscillators[i];
+				vector_3 ray_origin = vector_3(0, 0, 0);//threeD_oscillators[i];
 				vector_3 ray_dir = normals[i];
 
 				MyBig tmin = 0, tmax = 0;
@@ -165,7 +169,7 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 
 			for (size_t i = 0; i < n; i++)
 			{
-				vector_3 ray_origin = threeD_oscillators[i];
+				vector_3 ray_origin = vector_3(0, 0, 0);//threeD_oscillators[i];
 				vector_3 ray_dir = normals[i];
 
 				MyBig tmin = 0, tmax = 0;
@@ -198,14 +202,25 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 			beta = density0;
 
 			MyBig g = -alpha*pi;
-			//MyBig g_ = n / (2.0 * r * r * r);
+			MyBig g_ = n / (2.0 * r * r * r);
 
-			//cout << g << endl;
+			//cout << "g " <<  g / g_ << endl;
 
 			MyBig g_N = g * r * c * hbar * log(2.0) / (k * pi * 2.0 * mass);
-			MyBig g_N_ = G * mass / (r * r);
+			//MyBig g_N_ = G * mass / (r * r);
+
+			MyBig g_N_3 = sqrt((G * g * c * hbar * log(2.0)) / (2*r * k * pi));
+
+
+
+			MyBig v_3 = pow((g * G * r * c * hbar * log(2.0)) / (2 * k * pi), 1.0f/4.0f);
+			cout << sqrt(G * mass / r) << endl;
+			cout << v_3 << endl;
+
 
 			MyBig v = sqrt(g * r * r * c * hbar * log(2.0) / (k * pi * 2.0 * mass));
+			
+			
 			MyBig a_ = v * v / r;
 			MyBig a__ = g * r * c * hbar * log(2.0) / (k * pi * 2.0 * mass);
 			MyBig a = -alpha * r * c * hbar * log(2.0) / (k * 2.0 * mass);
@@ -213,7 +228,7 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 
 			//cout << a << " " << a_ << endl;
 
-			cout << g_N / g_N_ << endl;
+			//cout << g_N / g_N_3 << endl;
 
 
 		}
