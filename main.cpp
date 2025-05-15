@@ -49,7 +49,7 @@ bool intersect_AABB(const vector_3 min_location, const vector_3 max_location, co
 // alpha is gradient
 void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 {
-	const size_t n = 10000000;
+	const size_t n = static_cast<size_t>(1e8);
 
 	const MyBig emitter_radius = sqrt((n * G * hbar * log(2.0)) / (k * c3 * pi));
 	const MyBig emitter_area = 4 * pi * emitter_radius * emitter_radius;
@@ -76,9 +76,9 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 		threeD_line_segments.clear();
 		threeD_line_segments_intersected.clear();
 		threeD_line_segments_intersected2.clear();
-		threeD_oscillators.resize(n);
+		//threeD_oscillators.resize(n);
 		normals.resize(n);
-		threeD_line_segments.resize(n);	
+		//threeD_line_segments.resize(n);	
 
 		const MyBig D = 2.001;
 
@@ -94,17 +94,17 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 			const vector_4 rv = RayEllipsoid(vector_3(0, 0, 0), oscillator, vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
 
 			normals[i] = EllipsoidNormal(vector_3(rv.y, rv.z, rv.w), vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
-			threeD_oscillators[i] = vector_3(0, 0, 0);
+			//threeD_oscillators[i] = vector_3(0, 0, 0);
 
-			line_segment_3 ls;
-			ls.start = threeD_oscillators[i];
-			ls.end = threeD_oscillators[i] + normals[i];
+			//line_segment_3 ls;
+			//ls.start = threeD_oscillators[i];
+			//ls.end = threeD_oscillators[i] + normals[i];
 
-			threeD_line_segments[i] = ls;
+			//threeD_line_segments[i] = ls;
 		}
 
 
-		const MyBig start_distance = 50.0;
+		const MyBig start_distance = 20.0;
 		const MyBig end_distance = 100.0;
 		const size_t distance_res = 10;
 
@@ -204,34 +204,68 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 			MyBig g = -alpha*pi;
 			MyBig g_ = n / (2.0 * pow(r, D));
 
-			cout << "g " <<  g_ / g << endl;
+			cout << "g " <<  g << " " << g_ << endl;
 
-		//	MyBig g_N_flat = g * pow(r, disk_like) * c * hbar * log(2.0) / (k * pi * 2.0 * mass);
-
-			MyBig v_flat = 220000;
-			MyBig g_N_flat = v_flat * v_flat / r;
+			MyBig g_N = g * pow(r, 1 - disk_like) * c * hbar * log(2.0) / (k * pi * 2.0 * mass);
 			MyBig g_N_ = G * mass / (r * r);
-			MyBig g_N_2 = sqrt((g * G * c * hbar * log(2.0)) / (2 * k * pow(r, disk_like) * r * pi));
 
-			cout << g_N_flat << " " << g_N_ << " " << g_N_2 << endl;
+			cout << "g_N " << g_N / g_N_ << endl;
+
+			MyBig v = sqrt(g_N * r);
+			
 
 
 
-			//MyBig g_N_newton = sqrt((g * G * c * hbar * log(2.0)) / (2 * k * pow(r, disk_like) * r * pi));
+			//MyBig g_N_flat = g * r *  c * hbar * log(2.0) / ( G * k * pi * 2.0 * mass);
 
-			//cout << "g_N " << g_N_ / g_N_flat << endl;
-			//cout << "g_Newton " << g_N_newton / g_N_flat << endl;
+			MyBig v_flat = v*2; // sqrt(G*mass/r);
+			
+			
+			cout << 3 - log((v_flat*v_flat)/(v*v)) / log(r) << endl;
 
 
 			
+			
+			
+			//MyBig g_N_flat_ = v_flat * v_flat / r;
+
+			//cout << "v " << v << " " << v_flat << endl;
+
+
+			//cout << "g_N_flat " << g_N_flat << " " << g_N_flat_ << endl;
+
+			//
+			//cout << g_N_flat_ / g_N << endl;
+
+			//cout << 3 - log(g_N_flat_ / g_N) / log(r) << endl;
+
+
+
+
+
+
+			////MyBig g_N_3 = sqrt((G * g * c * hbar * log(2.0)) / (2*r * k * pi));
+			//MyBig g_N_3 = sqrt((g * G * c * hbar * log(2.0)) / (2 * k *r * r *pi));
+			//
+			//cout << g_N_ / g_N_3 << endl;
+
+			//MyBig v_3 = pow((g * G * r * c * hbar * log(2.0)) / (2 * k * pi), 1.0f/4.0f);
+			//MyBig v_ = sqrt(G * mass / r);
+			////cout << v_3 << endl;
+
+
+			//MyBig v = sqrt(g * r * r * c * hbar * log(2.0) / (k * pi * 2.0 * mass));
+
+			////cout << v / v_3 << endl;
+			//
 			//MyBig a_ = v * v / r;
 			//MyBig a__ = g * r * c * hbar * log(2.0) / (k * pi * 2.0 * mass);
 			//MyBig a = -alpha * r * c * hbar * log(2.0) / (k * 2.0 * mass);
 
 
-			//cout << a << " " << a_ << endl;
+			////cout << a << " " << a_ << endl;
 
-			//cout << g_N / g_N_3 << endl;
+			////cout << g_N / g_N_3 << endl;
 
 
 		}
