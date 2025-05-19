@@ -45,11 +45,16 @@ bool intersect_AABB(const vector_3 min_location, const vector_3 max_location, co
 }
 
 
+
+double lerp(double start, double end, double t) {
+	return start + t * (end - start);
+}
+
 // beta is density
 // alpha is gradient
 void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 {
-	const size_t n = static_cast<size_t>(1e7);
+	const size_t n = static_cast<size_t>(1e8);
 
 	const MyBig emitter_radius = sqrt((n * G * hbar * log(2.0)) / (k * c3 * pi));
 	const MyBig emitter_area = 4 * pi * emitter_radius * emitter_radius;
@@ -104,13 +109,13 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 		}
 
 
-		const MyBig start_distance = 20.0;
+		const MyBig start_distance = 100.0;
 		const MyBig end_distance = 100.0;
 		const size_t distance_res = 10;
 
-		const MyBig distance_step_size =
-			(end_distance - start_distance)
-			/ (distance_res - 1);
+		//const MyBig distance_step_size =
+		//	(end_distance - start_distance)
+		//	/ (distance_res - 1);
 
 		//for (size_t step_index = 0; step_index < distance_res; step_index++)
 		{
@@ -202,50 +207,58 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 			beta = density0;
 
 			MyBig g = -alpha*pi;
-			MyBig g_ = n / (2.0 * pow(r, D));
+			MyBig g_ = n / (2.0* pow(r, D));
 
 			cout << "g " <<  g << " " << g_ << endl;
-
+			cout << g / g_ << endl;
 
 			MyBig g_N__ = sqrt((n * G * c * hbar * log(2.0)) / (4 * k * pi * r * r * r * r));
-
-
 			//MyBig g_N = g * pow(r, 1 - disk_like) * c * hbar * log(2.0) / (k * pi * 2.0 * mass);
 
-			MyBig g_N_ = G * mass / (r * r);
+			//MyBig g_N__ = G * mass / (r * r);
 
-			cout << "g_N " <<  g_N_ << " " << g_N__ << endl;
+			//cout << "g_N " <<  g_N__ << " " << g_N_ << endl;
 
 			//MyBig v = sqrt(g_N__ * r);
+			//
+
+			//MyBig v_flat = v;//sqrt(g_N_flat * r);////v * 2; // sqrt(G*mass/r);
+
+
+			//MyBig g_N_flat = v_flat * v_flat / r;//
+			//MyBig g_N_flat_ = n* c* hbar* log(2.0) / (G * k * pi * 4.0 * r*r*r* mass);//v_flat* v_flat / r;// 
+
+			//cout << g_N_flat << " " << g_N_flat_ << endl;
+
+
+			///cout << "flat/newton " << g_N_flat / g_N__ << endl;
+
 			
-
-
-			MyBig g_N_flat = g* r* c* hbar* log(2.0) / (G * k * pi * 2.0 * mass);//v_flat* v_flat / r;// 
-
-			//MyBig v_flat = sqrt(g_N_flat * r);////v * 2; // sqrt(G*mass/r);
-
-
-
-			cout << "flat/newton " << g_N_flat / g_N__ << endl;
-
 			
-			
-			cout << 3 - log(g_N_flat / g_N__) / log(r) << endl;
+			//cout << 3 - log(g_N_flat_ / g_N__) / log(r) << endl;
 
 			
 			
 			
 			//MyBig g_N_flat_ = v_flat * v_flat / r;
 
-			//cout << "v " << v << " " << v_flat << endl;
+			//MyBig v_flat = sqrt(g * r * r * c * hbar * log(2.0) / (k * pi * 2.0 * mass));
+			//MyBig g_N_flat_ = (g * r * c * hbar * log(2.0)) / (k * pi * 2.0 * mass);
+
+			//MyBig g_N_flat__ = sqrt((g* G* c* hbar* log(2.0)) / (2 * k * pi * r));
+			MyBig g_N_flat__ = sqrt((g * G * c * hbar * log(2.0)) / (4 * k * pi * pow(r, 1.0 - disk_like)));
 
 
-			//cout << "g_N_flat " << g_N_flat << " " << g_N_flat_ << endl;
 
-			//
-			//cout << g_N_flat_ / g_N << endl;
 
-			//cout << 3 - log(g_N_flat_ / g_N) / log(r) << endl;
+
+			//MyBig g_N_flat = v_flat * v_flat / r;
+
+			cout << g_N__ << " " << g_N_flat__ << endl;
+			////
+			cout << g_N_flat__ / g_N__ << endl;
+
+			//cout << 3 - log(g_N_flat__ / g_N__) / log(r) << endl;
 
 
 
@@ -262,7 +275,8 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 			////cout << v_3 << endl;
 
 
-			//MyBig v = sqrt(g * r * r * c * hbar * log(2.0) / (k * pi * 2.0 * mass));
+
+
 
 			////cout << v / v_3 << endl;
 			//
