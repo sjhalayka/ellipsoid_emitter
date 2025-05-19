@@ -49,7 +49,7 @@ bool intersect_AABB(const vector_3 min_location, const vector_3 max_location, co
 // alpha is gradient
 void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 {
-	const size_t n = 100000000;
+	const size_t n = 10000000;
 
 	const MyBig emitter_radius = sqrt((n * G * hbar * log(2.0)) / (k * c3 * pi));
 	const MyBig emitter_area = 4 * pi * emitter_radius * emitter_radius;
@@ -80,7 +80,7 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 		normals.resize(n);
 		//threeD_line_segments.resize(n);	
 
-		const MyBig D = 2.001;
+		const MyBig D = 2.5;
 
 		const MyBig disk_like = 3 - D;
 
@@ -214,6 +214,9 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 			MyBig g_N = G * mass / (r * r);
 
 			MyBig g_N_flat = sqrt((g * G * c * hbar * log(2.0)) / (2 * k * pi * pow(r, 1.0 - disk_like)));
+			MyBig g_N_flat2 = sqrt((n * G * c * hbar * log(2.0)) / (k * pi * r*r*r*pow(r, 1.0 - disk_like)));
+
+			cout << g_N_flat << " " << g_N_flat2 << endl;
 
 			cout << g_N_flat / g_N << endl;
 			
