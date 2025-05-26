@@ -64,12 +64,14 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 	cout << "n: " << n << endl;
 	cout << endl;
 
-	const MyBig start_dim = 2.01; // Minimum 2.000001
+	const MyBig start_dim = 2.001; // Minimum 2.000001
 	const MyBig end_dim = 3.0; // Maximum 3
-	const size_t dim_res = 2; // Larger than 1
+	const size_t dim_res = 25; // Larger than 1
 	const MyBig dim_step_size = (end_dim - start_dim) / (dim_res - 1);
 
-	//for (MyBig D = start_dim; D <= end_dim; D += dim_step_size)
+	ofstream logfile("log.txt");
+
+//	for (MyBig D = start_dim; D <= end_dim; D += dim_step_size)
 	{
 		threeD_oscillators.clear();
 		normals.clear();
@@ -84,9 +86,11 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 
 		const MyBig disk_like = 3 - D;
 
-		//const MyBig fractionality = 1.0 - 2.0 * (0.5 - fmod(D, 1.0));
+		const MyBig fractionality = 1.0 - 2.0 * (0.5 - fmod(D, 1.0));
 
-		// Get normal on prolate ellipsoid
+		//cout << "Fractionality " << fractionality << endl;
+
+		// Get normal on prolate ellipsoid	
 		for (size_t i = 0; i < n; i++)
 		{
 			vector_3 oscillator = RandomUnitVector() * 0.01; // Something much smaller than unit vectors
@@ -104,7 +108,9 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 		}
 
 
-		const MyBig start_distance = 20.0;
+		// 1.8 max where start_distancw = 10.0;
+
+		const MyBig start_distance = 20;
 		const MyBig end_distance = 100.0;
 		const size_t distance_res = 10;
 
@@ -123,7 +129,7 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 
 
 
-			MyBig epsilon = 0.000001;
+			MyBig epsilon = 1e-5;
 
 			MyBig count0 = 0;
 			MyBig density0 = 0;
@@ -202,10 +208,50 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 			beta = density0;
 
 			MyBig g = -alpha * pi;
+
+			MyBig x = D - 2;
+
+			//x = asin(x);
+
+			//custom_math::vector_3 normal(0, 1, 0);
+
+			//MyBig angle = -pi / 2.0 *(D - 2.0);
+			//normal.rotate_z(angle);
+
+			//cout << normal.x << endl;
+
+	
+			//MyBig disk_like = 3.0 - D;
+			//MyBig fractionality = 1.0 - 2.0 * (0.5 - fmod(D, 1.0));
+
+			//// Proposed new g_ calculation
+			//MyBig effective_D = D + (1.0 - disk_like) * (1.0 - fractionality); // Adjust exponent
+			//MyBig correction_factor = 1.0 + (D - 2.0) * fractionality; // Non-linear correction
+			//MyBig g_ = (n / (2.0 * pow(r, effective_D))) * correction_factor;
+
+
+
 			MyBig g_ = n / (2.0 * pow(r, D));
 
+
+
+			//MyBig g_ = (n) / (((1.0/(r*r*r*r)) * fractionality + 2.0) * pow(r, D));
+
+
+	//		MyBig g_ = n / (2.0 * pow(r, 2.0 + pow(1.0 - disk_like, -0.5)));
+
+			//MyBig g_ = n / ((pow(r, 1.0/4.0)*fractionality + 2.0) * pow(r, D));
+
+
+			
+			// 
+			// MyBig g_ = (n) /(0.5 * fractionality*pow(r, D) + 2.0 * pow(r, D));
+
+			/*MyBig g_ = n / (2.0*(2.0*fractionality + 2.0) * pow(r, D));*/
 			cout << g << " " << g_ << endl;
 
+			//2.0 * pow(r * r * r, fractionality) +
+			logfile << D << " " << g / g_ << endl;
 			cout << "g " <<  g / g_ << endl;
 
 		//	MyBig g_N = g * r * c * hbar * log(2.0) / (k * pi * 2.0 * mass);
@@ -213,12 +259,9 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 
 			MyBig g_N = G * mass / (r * r);
 
-			MyBig g_N_flat = sqrt((g * G * c * hbar * log(2.0)) / (2 * k * pi * pow(r, 1.0 - disk_like)));
-			MyBig g_N_flat2 = sqrt((n * G * c * hbar * log(2.0)) / (k * pi * r*r*r*pow(r, 1.0 - disk_like)));
-			MyBig g_N_flat3 = n * c * hbar * log(2.0) / (4 * k * pi * r * pow(r, 1.0 - disk_like) * mass);
-			//cout << g_N_flat2 << " " << g_N_flat3 << endl;
+			MyBig g_N_flat = n * c * hbar * log(2.0) / (4 * k * pi * r * pow(r, 1.0 - disk_like) * mass);
 
-			cout << g_N_flat3 / g_N << endl;
+			cout << g_N_flat / g_N << endl;
 			
 
 
