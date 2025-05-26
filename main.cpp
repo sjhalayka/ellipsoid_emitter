@@ -44,12 +44,19 @@ bool intersect_AABB(const vector_3 min_location, const vector_3 max_location, co
 	return true;
 }
 
+MyBig lerp_func(MyBig a, MyBig b, MyBig t)
+{
+	return a + t * (b - a);
+}
+
+
+
 
 // beta is density
 // alpha is gradient
 void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 {
-	const size_t n = 1e7;
+	const size_t n = 1e8;
 
 	const MyBig emitter_radius = sqrt((n * G * hbar * log(2.0)) / (k * c3 * pi));
 	const MyBig emitter_area = 4 * pi * emitter_radius * emitter_radius;
@@ -66,12 +73,12 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 
 	const MyBig start_dim = 2.001; // Minimum 2.000001
 	const MyBig end_dim = 3.0; // Maximum 3
-	const size_t dim_res = 25; // Larger than 1
+	const size_t dim_res = 100; // Larger than 1
 	const MyBig dim_step_size = (end_dim - start_dim) / (dim_res - 1);
 
 	ofstream logfile("log.txt");
 
-//	for (MyBig D = start_dim; D <= end_dim; D += dim_step_size)
+	for (MyBig D = start_dim; D <= end_dim; D += dim_step_size)
 	{
 		threeD_oscillators.clear();
 		normals.clear();
@@ -82,7 +89,7 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 		normals.resize(n);
 		//threeD_line_segments.resize(n);	
 
-		const MyBig D = 2.5;
+		//const MyBig D = 2.5;
 
 		const MyBig disk_like = 3 - D;
 
@@ -209,7 +216,7 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 
 			MyBig g = -alpha * pi;
 
-			MyBig x = D - 2;
+			///MyBig x = D - 2;
 
 			//x = asin(x);
 
@@ -221,14 +228,6 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 			//cout << normal.x << endl;
 
 	
-			//MyBig disk_like = 3.0 - D;
-			//MyBig fractionality = 1.0 - 2.0 * (0.5 - fmod(D, 1.0));
-
-			//// Proposed new g_ calculation
-			//MyBig effective_D = D + (1.0 - disk_like) * (1.0 - fractionality); // Adjust exponent
-			//MyBig correction_factor = 1.0 + (D - 2.0) * fractionality; // Non-linear correction
-			//MyBig g_ = (n / (2.0 * pow(r, effective_D))) * correction_factor;
-
 
 
 			MyBig g_ = n / (2.0 * pow(r, D));
@@ -248,10 +247,70 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 			// MyBig g_ = (n) /(0.5 * fractionality*pow(r, D) + 2.0 * pow(r, D));
 
 			/*MyBig g_ = n / (2.0*(2.0*fractionality + 2.0) * pow(r, D));*/
-			cout << g << " " << g_ << endl;
+
+
 
 			//2.0 * pow(r * r * r, fractionality) +
-			logfile << D << " " << g / g_ << endl;
+			/*logfile << D << " " << g / g_ << endl;*/
+
+			const MyBig e = 10e-5;
+
+			if (g_ < g)
+			{
+				MyBig first_g_ = g_;
+
+				cout << "less than" << endl;
+
+				MyBig prev_distance = first_g_ - g_;
+
+				while (1)
+				{
+					g_ += e;
+
+					MyBig curr_distance = g - g_;
+
+					if (prev_distance > curr_distance)
+					{
+						g_ -= e;
+						break;
+					}
+				}
+			}
+			else if(g_ > g)
+			{
+				cout << "greater than" << endl;
+
+				MyBig first_g_ = g_;
+
+					
+				MyBig prev_distance = first_g_ - g_;
+
+				while (1)
+				{
+					g_ -= e;
+
+					MyBig curr_distance = g - g_;
+
+					if (prev_distance < curr_distance)
+					{
+						g_ += e;
+						break;
+					}
+				}
+
+
+			}
+
+
+
+
+			//cout << g << " " << g_ << endl;
+
+
+
+
+			logfile << D << " " << g_ << endl;
+
 			cout << "g " <<  g / g_ << endl;
 
 		//	MyBig g_N = g * r * c * hbar * log(2.0) / (k * pi * 2.0 * mass);

@@ -51,6 +51,8 @@ using custom_math::line_segment_3;
 
 #include <chrono>
 
+#include <cmath>
+
 using namespace std;
 
 
