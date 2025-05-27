@@ -56,7 +56,7 @@ MyBig lerp_func(MyBig a, MyBig b, MyBig t)
 // alpha is gradient
 void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 {
-	const size_t n = 1e8;
+	const size_t n = 1e7;
 
 	const MyBig emitter_radius = sqrt((n * G * hbar * log(2.0)) / (k * c3 * pi));
 	const MyBig emitter_area = 4 * pi * emitter_radius * emitter_radius;
@@ -76,7 +76,7 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 	const size_t dim_res = 100; // Larger than 1
 	const MyBig dim_step_size = (end_dim - start_dim) / (dim_res - 1);
 
-	ofstream logfile("log.txt");
+	ofstream logfile("g_.txt");
 
 	for (MyBig D = start_dim; D <= end_dim; D += dim_step_size)
 	{
@@ -136,7 +136,7 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 
 
 
-			MyBig epsilon = 1e-5;
+			MyBig epsilon = 0.001;
 
 			MyBig count0 = 0;
 			MyBig density0 = 0;
@@ -211,8 +211,17 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 			density0 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
 			density1 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
 
+			count0 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
+			count1 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
+
+
+
 			alpha = (density1 - density0) / epsilon;
 			beta = density0;
+
+			//alpha = (count1 - count0) / epsilon;
+			//beta = count0;
+
 
 			MyBig g = -alpha * pi;
 
@@ -227,10 +236,12 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 
 			//cout << normal.x << endl;
 
-	
-
-
 			MyBig g_ = n / (2.0 * pow(r, D));
+
+				
+			//MyBig g_ = n / (2.0 * pow(r, D));
+
+
 
 
 
@@ -253,53 +264,61 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 			//2.0 * pow(r * r * r, fractionality) +
 			/*logfile << D << " " << g / g_ << endl;*/
 
-			const MyBig e = 10e-5;
-
-			if (g_ < g)
-			{
-				MyBig first_g_ = g_;
-
-				cout << "less than" << endl;
-
-				MyBig prev_distance = first_g_ - g_;
-
-				while (1)
-				{
-					g_ += e;
-
-					MyBig curr_distance = g - g_;
-
-					if (prev_distance > curr_distance)
-					{
-						g_ -= e;
-						break;
-					}
-				}
-			}
-			else if(g_ > g)
-			{
-				cout << "greater than" << endl;
-
-				MyBig first_g_ = g_;
-
-					
-				MyBig prev_distance = first_g_ - g_;
-
-				while (1)
-				{
-					g_ -= e;
-
-					MyBig curr_distance = g - g_;
-
-					if (prev_distance < curr_distance)
-					{
-						g_ += e;
-						break;
-					}
-				}
 
 
-			}
+
+
+
+			//const MyBig e = 10e-5;
+
+			//if (g_ < g)
+			//{
+			//	MyBig first_g_ = g_;
+
+			//	cout << "less than" << endl;
+
+			//	MyBig prev_distance = first_g_ - g_;
+
+			//	while (1)
+			//	{
+			//		g_ += e;
+
+			//		MyBig curr_distance = g - g_;
+
+			//		if (prev_distance > curr_distance)
+			//		{
+			//			g_ -= e;
+			//			break;
+			//		}
+			//	}
+			//}
+			//else if(g_ > g)
+			//{
+			//	cout << "greater than" << endl;
+
+			//	MyBig first_g_ = g_;
+
+			//	MyBig prev_distance = first_g_ - g_;
+
+			//	while (1)
+			//	{
+			//		g_ -= e;
+
+			//		MyBig curr_distance = g - g_;
+
+			//		if (prev_distance < curr_distance)
+			//		{
+			//			g_ += e;
+			//			break;
+			//		}
+			//	}
+			//}
+
+
+
+
+
+
 
 
 
@@ -311,7 +330,7 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 
 			logfile << D << " " << g_ << endl;
 
-			cout << "g " <<  g / g_ << endl;
+			cout << "g " << g << " " << g_ << " " <<  g / g_ << endl;
 
 		//	MyBig g_N = g * r * c * hbar * log(2.0) / (k * pi * 2.0 * mass);
 			
@@ -320,7 +339,7 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 
 			MyBig g_N_flat = n * c * hbar * log(2.0) / (4 * k * pi * r * pow(r, 1.0 - disk_like) * mass);
 
-			cout << g_N_flat / g_N << endl;
+			//cout << g_N_flat / g_N << endl;
 			
 
 
