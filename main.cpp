@@ -50,13 +50,46 @@ MyBig lerp_func(MyBig a, MyBig b, MyBig t)
 }
 
 
+MyBig get_intersecting_line_count_real(
+	const MyBig n,
+	const MyBig box_location_x,
+	const MyBig box_length,
+	const MyBig D)
+{
+	const MyBig big_area =
+		4 * pi
+		* box_location_x * box_location_x;
+
+	const MyBig big_length =
+		2 * pi
+		* box_location_x;
+
+	const MyBig disk_like = 3 - D;
+
+	const MyBig big = lerp_func(big_length, big_area, 1 - disk_like);
+
+	const MyBig small_area = 
+		box_length * box_length;
+
+	const MyBig small_length =
+		box_length;
+
+	const MyBig small = lerp_func(small_length, small_area, 1 - disk_like);
+
+	const MyBig ratio =
+		small
+		/ big;
+
+	return n * ratio;
+}
+
 
 
 // beta is density
 // alpha is gradient
 void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 {
-	const size_t n = 1e7;
+	const size_t n = 1e8;
 
 	const MyBig emitter_radius = sqrt((n * G * hbar * log(2.0)) / (k * c3 * pi));
 	const MyBig emitter_area = 4 * pi * emitter_radius * emitter_radius;
@@ -76,9 +109,9 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 	const size_t dim_res = 100; // Larger than 1
 	const MyBig dim_step_size = (end_dim - start_dim) / (dim_res - 1);
 
-	ofstream logfile("g_.txt");
+	ofstream logfile("g20_1e7.txt");
 
-	for (MyBig D = start_dim; D <= end_dim; D += dim_step_size)
+	//for (MyBig D = start_dim; D <= end_dim; D += dim_step_size)
 	{
 		threeD_oscillators.clear();
 		normals.clear();
@@ -87,9 +120,9 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 		threeD_line_segments_intersected2.clear();
 		//threeD_oscillators.resize(n);
 		normals.resize(n);
-		//threeD_line_segments.resize(n);	
+		//threeD_line_segments.resize(n);
 
-		//const MyBig D = 2.5;
+		const MyBig D = 2.0000001;
 
 		const MyBig disk_like = 3 - D;
 
@@ -100,7 +133,9 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 		// Get normal on prolate ellipsoid	
 		for (size_t i = 0; i < n; i++)
 		{
-			vector_3 oscillator = RandomUnitVector() * 0.01; // Something much smaller than unit vectors
+			vector_3 oscillator = RandomUnitVector();
+			//vector_3 oscillator = randomUnitVectorAngle(generator);
+
 
 			const vector_4 rv = RayEllipsoid(vector_3(0, 0, 0), oscillator, vector_3(1.0 - disk_like, 1.0, 1.0 - disk_like));
 
@@ -108,8 +143,8 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 			//threeD_oscillators[i] = vector_3(0, 0, 0);
 
 			//line_segment_3 ls;
-			//ls.start = threeD_oscillators[i];
-			//ls.end = threeD_oscillators[i] + normals[i];
+			//ls.start = vector_3(0, 0, 0);
+			//ls.end = normals[i];
 
 			//threeD_line_segments[i] = ls;
 		}
@@ -117,7 +152,7 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 
 		// 1.8 max where start_distancw = 10.0;
 
-		const MyBig start_distance = 20;
+		const MyBig start_distance = 20000;
 		const MyBig end_distance = 100.0;
 		const size_t distance_res = 10;
 
@@ -136,7 +171,7 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 
 
 
-			MyBig epsilon = 0.001;
+			MyBig epsilon = 1.0;
 
 			MyBig count0 = 0;
 			MyBig density0 = 0;
@@ -208,22 +243,21 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 				}
 			}
 
-			density0 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
-			density1 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
+			//density0 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
+			//density1 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
+
+			//alpha = (density1 - density0) / epsilon;
+			//beta = density0;
 
 			count0 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
 			count1 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
 
-
-
-			alpha = (density1 - density0) / epsilon;
-			beta = density0;
-
-			//alpha = (count1 - count0) / epsilon;
-			//beta = count0;
-
+			alpha = (count1 - count0) / epsilon;
+			beta = count0;
 
 			MyBig g = -alpha * pi;
+
+
 
 			///MyBig x = D - 2;
 
@@ -236,14 +270,18 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 
 			//cout << normal.x << endl;
 
+
+
 			MyBig g_ = n / (2.0 * pow(r, D));
 
-				
-			//MyBig g_ = n / (2.0 * pow(r, D));
+			MyBig g2 = get_intersecting_line_count_real(n, r, 1, D);
 
+			cout << "Count begin" << endl;
+			cout << g2 << " " << count0 << endl;
 
-
-
+			//cout << count0 << " " << count1 << endl;
+			cout << g2 / count0 << endl;
+			cout << "Count end" << endl;
 
 			//MyBig g_ = (n) / (((1.0/(r*r*r*r)) * fractionality + 2.0) * pow(r, D));
 
@@ -253,7 +291,7 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 			//MyBig g_ = n / ((pow(r, 1.0/4.0)*fractionality + 2.0) * pow(r, D));
 
 
-			
+
 			// 
 			// MyBig g_ = (n) /(0.5 * fractionality*pow(r, D) + 2.0 * pow(r, D));
 
@@ -263,6 +301,10 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 
 			//2.0 * pow(r * r * r, fractionality) +
 			/*logfile << D << " " << g / g_ << endl;*/
+
+
+
+
 
 
 
@@ -292,11 +334,12 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 			//		}
 			//	}
 			//}
-			//else if(g_ > g)
+			//else if (g_ > g)
 			//{
 			//	cout << "greater than" << endl;
 
 			//	MyBig first_g_ = g_;
+
 
 			//	MyBig prev_distance = first_g_ - g_;
 
@@ -317,30 +360,24 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 
 
 
-
-
-
-
-
-
 			//cout << g << " " << g_ << endl;
 
 
 
 
-			logfile << D << " " << g_ << endl;
+			logfile << D << " " << g << endl;
 
-			cout << "g " << g << " " << g_ << " " <<  g / g_ << endl;
+			cout << "g " << g / g_ << endl;
 
-		//	MyBig g_N = g * r * c * hbar * log(2.0) / (k * pi * 2.0 * mass);
-			
+			//	MyBig g_N = g * r * c * hbar * log(2.0) / (k * pi * 2.0 * mass);
+
 
 			MyBig g_N = G * mass / (r * r);
 
 			MyBig g_N_flat = n * c * hbar * log(2.0) / (4 * k * pi * r * pow(r, 1.0 - disk_like) * mass);
 
-			//cout << g_N_flat / g_N << endl;
-			
+			cout << g_N_flat / g_N << endl;
+
 
 
 			////MyBig g_N_3 = sqrt((G * g * c * hbar * log(2.0)) / (2*r * k * pi));
@@ -518,24 +555,24 @@ void draw_objects(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
-	//glBegin(GL_LINES);
+	glBegin(GL_LINES);
 
-	//glColor4f(1.0f, 0.5f, 0, 0.2f);
+	glColor4f(1.0f, 0.5f, 0, 0.2f);
 
-	//for (size_t i = 0; i < threeD_line_segments.size(); i++)
-	//{
-	//	//if (threeD_line_segments[i].start.z > 0 || threeD_line_segments[i].end.z > 0)
-	//	//	continue;
+	for (size_t i = 0; i < threeD_line_segments.size(); i++)
+	{
+		//if (threeD_line_segments[i].start.z > 0 || threeD_line_segments[i].end.z > 0)
+		//	continue;
 
-	//	//if (threeD_oscillators[i].z > 0)
-	//	//	continue;
+		//if (threeD_oscillators[i].z > 0)
+		//	continue;
 
 
-	//	glVertex3d(threeD_line_segments[i].start.x, threeD_line_segments[i].start.y, threeD_line_segments[i].start.z);
-	//	glVertex3d(threeD_line_segments[i].end.x, threeD_line_segments[i].end.y, threeD_line_segments[i].end.z);
-	//}
+		glVertex3d(threeD_line_segments[i].start.x, threeD_line_segments[i].start.y, threeD_line_segments[i].start.z);
+		glVertex3d(threeD_line_segments[i].end.x, threeD_line_segments[i].end.y, threeD_line_segments[i].end.z);
+	}
 
-	//glEnd();
+	glEnd();
 
 
 
@@ -570,48 +607,48 @@ void draw_objects(void)
 
 
 
-	glBegin(GL_LINES);
+	//glBegin(GL_LINES);
 
-	glColor4f(0, 1, 0, 0.1f);
+	//glColor4f(0, 1, 0, 0.1f);
 
-	for (size_t i = 0; i < threeD_line_segments.size(); i++)
-	{
-		glVertex3d(threeD_line_segments[i].start.x, threeD_line_segments[i].start.y, threeD_line_segments[i].start.z);
-		glVertex3d(threeD_line_segments[i].end.x, threeD_line_segments[i].end.y, threeD_line_segments[i].end.z);
-	}
+	//for (size_t i = 0; i < threeD_line_segments.size(); i++)
+	//{
+	//	glVertex3d(threeD_line_segments[i].start.x, threeD_line_segments[i].start.y, threeD_line_segments[i].start.z);
+	//	glVertex3d(threeD_line_segments[i].end.x, threeD_line_segments[i].end.y, threeD_line_segments[i].end.z);
+	//}
 
-	glEnd();
-
-
-
-	glBegin(GL_LINES);
-
-	glColor4f(0, 0.5, 1.0, 0.2f);
-
-	//cout << threeD_line_segments_intersected.size() << endl;
-
-	for (size_t i = 0; i < threeD_line_segments_intersected2.size(); i++)
-	{
-		glVertex3d(threeD_line_segments_intersected2[i].start.x, threeD_line_segments_intersected2[i].start.y, threeD_line_segments_intersected2[i].start.z);
-		glVertex3d(threeD_line_segments_intersected2[i].end.x, threeD_line_segments_intersected2[i].end.y, threeD_line_segments_intersected2[i].end.z);
-	}
-
-	glEnd();
+	//glEnd();
 
 
-	glBegin(GL_LINES);
 
-	glColor4f(1, 0.5, 0.0, 0.2f);
+	//glBegin(GL_LINES);
 
-	//cout << threeD_line_segments_intersected.size() << endl;
+	//glColor4f(0, 0.5, 1.0, 0.2f);
 
-	for (size_t i = 0; i < threeD_line_segments_intersected.size(); i++)
-	{
-		glVertex3d(threeD_line_segments_intersected[i].start.x, threeD_line_segments_intersected[i].start.y, threeD_line_segments_intersected[i].start.z);
-		glVertex3d(threeD_line_segments_intersected[i].end.x, threeD_line_segments_intersected[i].end.y, threeD_line_segments_intersected[i].end.z);
-	}
+	////cout << threeD_line_segments_intersected.size() << endl;
 
-	glEnd();
+	//for (size_t i = 0; i < threeD_line_segments_intersected2.size(); i++)
+	//{
+	//	glVertex3d(threeD_line_segments_intersected2[i].start.x, threeD_line_segments_intersected2[i].start.y, threeD_line_segments_intersected2[i].start.z);
+	//	glVertex3d(threeD_line_segments_intersected2[i].end.x, threeD_line_segments_intersected2[i].end.y, threeD_line_segments_intersected2[i].end.z);
+	//}
+
+	//glEnd();
+
+
+	//glBegin(GL_LINES);
+
+	//glColor4f(1, 0.5, 0.0, 0.2f);
+
+	////cout << threeD_line_segments_intersected.size() << endl;
+
+	//for (size_t i = 0; i < threeD_line_segments_intersected.size(); i++)
+	//{
+	//	glVertex3d(threeD_line_segments_intersected[i].start.x, threeD_line_segments_intersected[i].start.y, threeD_line_segments_intersected[i].start.z);
+	//	glVertex3d(threeD_line_segments_intersected[i].end.x, threeD_line_segments_intersected[i].end.y, threeD_line_segments_intersected[i].end.z);
+	//}
+
+	//glEnd();
 
 
 

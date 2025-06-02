@@ -47,11 +47,11 @@ using custom_math::line_segment_3;
 
 #include <thread>
 
-#include <utility>
-
 #include <chrono>
 
 #include <cmath>
+
+#include <algorithm>
 
 using namespace std;
 
@@ -171,7 +171,11 @@ vector_3 RandomUnitVector(void)
 	return vector_3(x, y, z).normalize();
 }
 
-
+vector_3 randomUnitVectorAngle(std::mt19937& gen) {
+	std::uniform_real_distribution<double> dis(0.0, 2.0 * pi);
+	double angle = dis(generator);
+	return vector_3(std::cos(angle), 0, std::sin(angle));
+}
 
 
 #endif
