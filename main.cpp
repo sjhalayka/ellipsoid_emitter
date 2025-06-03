@@ -66,7 +66,7 @@ MyBig get_intersecting_line_count_real(
 
 	const MyBig disk_like = 3 - D;
 
-	const MyBig big = lerp_func(big_length, big_area, 1 - disk_like);
+	const MyBig big = lerp_func(big_length, big_area, pow(1 - disk_like, 2.0));
 
 	const MyBig small_area = 
 		box_length * box_length;
@@ -74,7 +74,7 @@ MyBig get_intersecting_line_count_real(
 	const MyBig small_length =
 		box_length;
 
-	const MyBig small = lerp_func(small_length, small_area, 1 - disk_like);
+	const MyBig small = lerp_func(small_length, small_area, pow(1 - disk_like, 2.0));
 
 	const MyBig ratio =
 		small
@@ -104,14 +104,14 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 	cout << "n: " << n << endl;
 	cout << endl;
 
-	const MyBig start_dim = 2.001; // Minimum 2.000001
+	const MyBig start_dim = 2.000001; // Minimum 2.000001
 	const MyBig end_dim = 3.0; // Maximum 3
 	const size_t dim_res = 100; // Larger than 1
 	const MyBig dim_step_size = (end_dim - start_dim) / (dim_res - 1);
 
-	ofstream logfile("g20_1e7.txt");
+	ofstream logfile("gamma_g_ratio.txt");
 
-	//for (MyBig D = start_dim; D <= end_dim; D += dim_step_size)
+	for (MyBig D = start_dim; D <= end_dim; D += dim_step_size)
 	{
 		threeD_oscillators.clear();
 		normals.clear();
@@ -122,7 +122,7 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 		normals.resize(n);
 		//threeD_line_segments.resize(n);
 
-		const MyBig D = 2.0000001;
+		//const MyBig D = 3.0;
 
 		const MyBig disk_like = 3 - D;
 
@@ -152,7 +152,7 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 
 		// 1.8 max where start_distancw = 10.0;
 
-		const MyBig start_distance = 20000;
+		const MyBig start_distance = 50;
 		const MyBig end_distance = 100.0;
 		const size_t distance_res = 10;
 
@@ -171,7 +171,7 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 
 
 
-			MyBig epsilon = 1.0;
+			MyBig epsilon = 0.01;
 
 			MyBig count0 = 0;
 			MyBig density0 = 0;
@@ -243,17 +243,17 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 				}
 			}
 
-			//density0 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
-			//density1 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
+			density0 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
+			density1 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
 
-			//alpha = (density1 - density0) / epsilon;
-			//beta = density0;
+			alpha = (density1 - density0) / epsilon;
+			beta = density0;
 
-			count0 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
-			count1 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
+			//count0 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
+			//count1 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
 
-			alpha = (count1 - count0) / epsilon;
-			beta = count0;
+			//alpha = (count1 - count0) / epsilon;
+			//beta = count0;
 
 			MyBig g = -alpha * pi;
 
@@ -275,12 +275,25 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 			MyBig g_ = n / (2.0 * pow(r, D));
 
 			MyBig g2 = get_intersecting_line_count_real(n, r, 1, D);
+			MyBig g2_epsilon = get_intersecting_line_count_real(n, r + epsilon, 1, D);
+
+
+
+
+			g2 /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
+			g2_epsilon /= (max_location.x - min_location.x) * (max_location.y - min_location.y) * (max_location.z - min_location.z);
+
+
+
+
+			MyBig gamma = -pi*(g2_epsilon - g2) / epsilon;
+
 
 			cout << "Count begin" << endl;
-			cout << g2 << " " << count0 << endl;
+			cout << gamma << " " << g << " " << g_ << endl;
 
 			//cout << count0 << " " << count1 << endl;
-			cout << g2 / count0 << endl;
+			cout << gamma / g << endl;
 			cout << "Count end" << endl;
 
 			//MyBig g_ = (n) / (((1.0/(r*r*r*r)) * fractionality + 2.0) * pow(r, D));
@@ -365,7 +378,7 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 
 
 
-			logfile << D << " " << g << endl;
+			logfile << D << " " << gamma / g << endl;
 
 			cout << "g " << g / g_ << endl;
 
