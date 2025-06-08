@@ -52,6 +52,9 @@ using custom_math::line_segment_3;
 #include <cmath>
 
 #include <algorithm>
+// Improved version with better sampling strategies
+#include <random>
+#include <future>
 
 using namespace std;
 

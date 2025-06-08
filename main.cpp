@@ -44,10 +44,131 @@ bool intersect_AABB(const vector_3 min_location, const vector_3 max_location, co
 	return true;
 }
 
+
+
+double logistic(double x) {
+	double K = 1.0;    // Carrying capacity
+	double r = 10.0;   // Growth rate
+	double x0 = 0.5;   // Midpoint
+
+	return K / (1.0 + std::exp(-r * (x - x0)));
+}
+
 MyBig lerp_func(MyBig a, MyBig b, MyBig t)
 {
 	return a + t * (b - a);
 }
+
+
+
+
+//
+//MyBig get_intersecting_line_count_real(
+//	const MyBig n,
+//	const MyBig box_location_x,
+//	const MyBig box_length,
+//	const MyBig D)
+//{
+//	const MyBig big_area =
+//		4 * pi
+//		* box_location_x * box_location_x;
+//
+//	const MyBig big_length =
+//		2 * pi
+//		* box_location_x;
+//
+//	const MyBig disk_like = 3 - D;
+//
+//	const MyBig big = lerp_func(big_length, big_area, pow(1 - disk_like, 2.0));
+//
+//	const MyBig small_area =
+//		box_length * box_length;
+//
+//	const MyBig small_length =
+//		box_length;
+//
+//	const MyBig small = lerp_func(small_length, small_area, pow(1 - disk_like, 2.0));
+//
+//	const MyBig ratio =
+//		small
+//		/ big;
+//
+//	return n * ratio;
+//}
+
+
+//
+//MyBig get_intersecting_line_count_real(
+//	const MyBig n,
+//	const MyBig box_location_x,
+//	const MyBig box_length,
+//	const MyBig D)
+//{
+//	MyBig running_total_small = 0;
+//	MyBig running_total_big = 0;
+//
+//	MyBig running_ratio = 0;
+//
+//	const MyBig big_area =
+//		4 * pi
+//		* box_location_x * box_location_x;
+//
+//	const MyBig big_length =
+//		2 * pi
+//		* box_location_x;
+//
+//	const MyBig small_area =
+//		box_length * box_length;
+//
+//	const MyBig small_length =
+//		box_length;
+//
+//	const MyBig disk_like = 3 - D;
+//
+//	const MyBig start_distance = 0;
+//	const MyBig end_distance = 1;
+//	const size_t distance_res = 10;
+//
+//	const MyBig distance_step_size =
+//		(end_distance - start_distance)
+//		/ (distance_res - 1);
+//
+//	for (size_t step_index = 0; 
+//		step_index < distance_res; 
+//		step_index++)
+//	{
+//		const MyBig rn =
+//			start_distance + 
+//			step_index * distance_step_size;
+//
+//		if (rn <= disk_like)
+//		{
+//			running_ratio += (small_length / big_length);
+//
+//			running_total_big += big_length;
+//			running_total_small += small_length;
+//		}
+//		else
+//		{
+//			running_ratio += (small_area / big_area);
+//
+//			running_total_big += big_area;
+//			running_total_small += small_area;
+//		}
+//	}
+//
+//	//const MyBig ratio =
+//	//	(running_total_small)
+//	//	/
+//	//	(running_total_big);
+//
+//	const MyBig ratio =
+//		running_ratio / static_cast<MyBig>(distance_res);
+//
+//	return n * ratio;
+//}
+
+
 
 
 MyBig get_intersecting_line_count_real(
@@ -56,6 +177,11 @@ MyBig get_intersecting_line_count_real(
 	const MyBig box_length,
 	const MyBig D)
 {
+	MyBig running_total_small = 0;
+	MyBig running_total_big = 0;
+
+	MyBig running_ratio = 0;
+
 	const MyBig big_area =
 		4 * pi
 		* box_location_x * box_location_x;
@@ -64,24 +190,44 @@ MyBig get_intersecting_line_count_real(
 		2 * pi
 		* box_location_x;
 
-	const MyBig disk_like = 3 - D;
-
-	const MyBig big = lerp_func(big_length, big_area, pow(1 - disk_like, 2.0));
-
-	const MyBig small_area = 
+	const MyBig small_area =
 		box_length * box_length;
 
 	const MyBig small_length =
 		box_length;
 
-	const MyBig small = lerp_func(small_length, small_area, pow(1 - disk_like, 2.0));
+	const MyBig disk_like = 3 - D;
 
-	const MyBig ratio =
-		small
-		/ big;
+	const MyBig start_distance = 0;
+	const MyBig end_distance = 1;
+	const size_t distance_res = 10000;
 
-	return n * ratio;
+	const MyBig distance_step_size =
+		(end_distance - start_distance)
+		/ (distance_res - 1);
+
+	for (size_t step_index = 0;
+		step_index < distance_res;
+		step_index++)
+	{
+		const MyBig rn =
+			start_distance +
+			step_index * distance_step_size;
+
+		if (rn <= disk_like)
+			running_ratio += 1;
+	}
+
+	const MyBig r =
+		running_ratio / 
+		static_cast<MyBig>(distance_res);
+
+	const MyBig big = lerp_func(big_area, big_length, r);
+	const MyBig small = lerp_func(small_area, small_length, r);
+
+	return n * (small/big);
 }
+
 
 
 
@@ -89,7 +235,7 @@ MyBig get_intersecting_line_count_real(
 // alpha is gradient
 void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 {
-	const size_t n = 1e8;
+	const size_t n = 1e7;
 
 	const MyBig emitter_radius = sqrt((n * G * hbar * log(2.0)) / (k * c3 * pi));
 	const MyBig emitter_area = 4 * pi * emitter_radius * emitter_radius;
@@ -122,7 +268,7 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 		normals.resize(n);
 		//threeD_line_segments.resize(n);
 
-		//const MyBig D = 3.0;
+		//const MyBig D = 2.75;
 
 		const MyBig disk_like = 3 - D;
 
@@ -152,7 +298,7 @@ void get_density_and_gradient(MyBig& beta, MyBig& alpha)
 
 		// 1.8 max where start_distancw = 10.0;
 
-		const MyBig start_distance = 50;
+		const MyBig start_distance = 20;
 		const MyBig end_distance = 100.0;
 		const size_t distance_res = 10;
 
